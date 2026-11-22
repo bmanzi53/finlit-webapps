@@ -1,0 +1,550 @@
+<!doctype html>
+<!--
+CW9 student worksheet | Owner: Mr. Manzi, Financial Literacy
+Sources: _source/assignment_master.txt and data/assignments.json (checking-fees).
+Maintenance: update the embedded schedule and prompts from the master, then recompute this audit and rerun checks. No build step.
+ANSWER AUDIT (use the master fee table, not the example key in BUILD_SPEC):
+Dani: $380 < $500 and balance < $1,500; $15 + 1 × $3 + $0 = $18; $18 × 12 = $216.
+1a: min($15, $12, $15) = $12 (Bank of America).
+1b: Chase: $500+ qualifying direct deposits OR $1,500+ every day; employer payment = direct deposit.
+1c: BoA $10 least, TD $35 most; $35 − $10 = $25. 1d: Chase 3 × $34 = $102; BoA 2 × $10 = $20.
+2a: $350 < $500 and balance < $1,500; not waived ($15). 2b: $15 + 4 × $3 + 2 × $34 = $95.
+2c: $95 × 12 = $1,140. 2d: $400 single deposit ≥ $250, so $0 + 5 × $2.50 + $10 = $22.50 (not $34.50).
+2e: $95 − $22.50 = $72.50 (not $60.50). 2f: $300 daily ≥ $250; $0 maintenance; 3 × $3 = $9 ATM.
+2g: $0 + $9 + $0 = $9. 2h: $0 + $0 + $0 = $0 monthly; ($9 − $0) × 12 = $108 saved.
+3a: Chase: $320 < $500 and daily balance < $1,500; $15 + 2 × $3 + $34 = $55.
+    BoA: $320 single deposit ≥ $250; $0 + 2 × $2.50 + $10 = $15 (not $27).
+    TD: below $250 on the overdraft day; $15 + 2 × $3 + $35 = $56.
+    Grid rows (Chase / BoA / TD): $15/$0/$15; $6/$5/$6; $34/$10/$35; $55/$15/$56.
+3b: BoA cheapest at $15; TD highest at $56; $56 − $15 = $41 (not $29).
+3c: TD waiver requires $250 every day; overdraft day fails it; $35 + $15 = $50 before ATM fees.
+3d: $600 qualifying deposits ≥ $500; Chase $0 + $6 + $34 = $40; TD $56 remains most expensive; BoA $15.
+4a: $200 < $500/$250 and ~$150 < $1,500/$250. Chase $15, BoA $12, TD $15; BoA costs $3 less.
+4b: TD $56 vs. Chase $55 and BoA $15; one day below $250 adds $15 maintenance despite typical $400 balance.
+4c: Example: use in-network ATMs to avoid withdrawal fees; track the balance and pending payments to avoid overdrafts.
+Results v2 perQuestion keys A–S follow worksheet order; c/i/r/b = correct/incorrect/review/blank.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CW9 | Checking Account Fees at Real Banks</title>
+<link rel="icon" href="data:,">
+<style>
+:root{--navy:#12304f;--navy-900:#0b1f36;--primary:#1b5c9e;--primary-weak:#e8f0f9;--teal:#0f8a7e;--gold:#b5791a;--red:#b3261e;--green:#1f7a3f;--bg:#f4f6f9;--surface:#ffffff;--border:#dde4ec;--text:#1b2733;--muted:#5b6b7c;--radius:12px;--radius-sm:8px;--shadow:0 1px 2px rgba(16,36,62,.06),0 8px 24px rgba(16,36,62,.06);--font:Inter,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;--mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+*{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font:16px/1.55 var(--font)} h1,h2,h3{color:var(--navy);line-height:1.24;margin:0 0 .55rem} p{margin:.55rem 0 1rem} a{color:var(--primary)} .top{background:var(--navy-900);color:white} .top a{color:white;display:inline-flex;align-items:center;min-height:44px} .top h1{color:white;font-size:clamp(1.75rem,4vw,2.45rem);margin:.55rem 0} .top p{margin:0;color:#dce8f3} .wrap{width:min(100% - 2rem,1280px);margin-inline:auto} .top .wrap{padding:.45rem 0 1.45rem} .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:1.15rem;margin:1rem 0;min-width:0} .eyebrow{font-size:.875rem;font-weight:700;letter-spacing:.045em} .muted{color:var(--muted)} .small{font-size:.92rem} .no-margin{margin:0} .layout{display:grid;grid-template-columns:minmax(0,1.48fr) minmax(0,1fr);gap:1rem;align-items:start} aside{min-width:0;position:sticky;top:.65rem;max-height:calc(100vh - 1.3rem);overflow:auto;padding:0 2px .5rem} aside .card{margin:.65rem 0} details>summary{font-weight:700;color:var(--navy);min-height:44px;cursor:pointer;padding:.55rem .1rem} details>summary h2{display:inline;font-size:1.18rem} .reference{border-top:4px solid var(--teal);padding:.75rem} .table-area{max-width:100%;overflow:auto;border:1px solid var(--border);border-radius:var(--radius-sm)} .fee-scroll{max-height:55vh} table{border-collapse:separate;border-spacing:0;width:100%;font-variant-numeric:tabular-nums} caption{padding:.4rem;font-weight:700;text-align:left} th,td{padding:.55rem .45rem;border-bottom:1px solid var(--border);vertical-align:top;text-align:left} thead th{position:sticky;top:0;background:var(--primary-weak);color:var(--navy);z-index:1} tbody tr:nth-child(even){background:#f8fafc} tbody tr:hover{background:#eef5fa} tbody tr:last-child>*{border-bottom:0} .reference table{font-size:.875rem} .num{text-align:right} .student-fields{display:grid;grid-template-columns:2fr 1fr 1.1fr;gap:.8rem} label{font-weight:650;display:block;margin:.45rem 0 .2rem} input,select,textarea,button{font:inherit} input,select,textarea{max-width:100%;width:100%;min-height:44px;padding:.45rem .62rem;border:1px solid #8796a7;border-radius:var(--radius-sm);color:var(--text);background:white} textarea{resize:vertical;display:block} .answer{background:#fff8d7} .grid input{min-width:4.2rem;text-align:right} .grid td{padding:.32rem} .grid-total th,.grid-total td{border-top:2px solid var(--navy)} button{border:1px solid var(--primary);border-radius:var(--radius-sm);background:var(--primary);color:white;padding:.45rem .85rem;min-height:44px;cursor:pointer;font-weight:650} button.secondary{background:white;color:var(--text);border-color:#aab8c7} button:disabled{opacity:.65;cursor:default} :is(a,button,summary,input,textarea,select,[tabindex]):focus-visible{outline:3px solid #1b5c9e99;outline-offset:2px} .top a:focus-visible{outline-color:white} .progress{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:.65rem} progress{width:100%;height:.65rem;accent-color:var(--teal)} .chip{border-radius:50px;background:var(--primary-weak);color:var(--navy);padding:.2rem .65rem;font-size:.9rem;font-weight:700;display:inline-block} .done{background:#e9f6ed;color:var(--green)} .part h2{font-size:1.45rem} .scenario{margin-top:1.25rem;padding:.75rem;background:var(--primary-weak);border-radius:var(--radius-sm)} .question{margin:0;padding:1rem 0;border:0;border-top:1px solid var(--border)} .prompt{font-weight:650;margin:0 0 .45rem} .question .math{min-height:3.5rem} .feedback,.grid-feedback{margin:.35rem 0;color:var(--muted)} .feedback:empty,.grid-feedback:empty{display:none} .feedback.ok{color:var(--green)} .feedback.try{color:var(--red)} .explain{margin-top:.45rem} .explain p{margin:.15rem 0 .5rem} .actions{display:flex;flex-wrap:wrap;gap:.55rem;margin:.75rem 0} .code{font-family:var(--mono);overflow-wrap:anywhere} pre{white-space:pre-wrap;overflow-wrap:anywhere;font:inherit} #printView,.print-only{display:none} .skip{position:absolute;left:1rem;top:-5rem;background:white;padding:.6rem;z-index:9} .skip:focus{top:.5rem} [hidden]{display:none!important} footer{padding:0 0 1rem}
+@media(max-width:950px){.layout{grid-template-columns:minmax(0,1fr);gap:0} aside{position:static;max-height:none;overflow:visible;grid-row:1} .fee-scroll{max-height:none}}
+@media(max-width:550px){.student-fields{grid-template-columns:1fr}.wrap{width:calc(100% - 1rem)} .card{padding:.8rem} .reference table{min-width:28rem} .grid table{min-width:25rem}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+@media print{body{background:white;color:black;font-size:11pt} .top{background:white;color:black}.top h1,.top p{color:black}.skip,.top a,main,footer{display:none!important} #printView{display:block;margin:0 1rem} .wrap{width:auto;margin:0 1rem}.top .wrap{padding:.2rem 0} .code{font-size:9pt} pre{white-space:pre-wrap}}
+.objective-fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,13rem),1fr));gap:.4rem .85rem}
+.progress{display:grid;gap:.25rem}
+.field-status{display:block;min-height:1.4em;margin:.2rem 0 0}.field-status.ok{color:var(--green)}.field-status.try{color:var(--red)}
+.legacy-copy{white-space:pre-wrap;overflow-wrap:anywhere}.review-label{margin:.6rem 0 0}
+.grid input[aria-invalid=true],.objective-fields input[aria-invalid=true],.objective-fields select[aria-invalid=true]{border-color:var(--red)}
+html{scroll-padding-top:var(--part-nav-clearance,4rem)}
+#worksheet:not([hidden]){display:contents}
+.part-nav{position:sticky;top:0;z-index:4;display:flex;flex-wrap:wrap;align-items:center;gap:.3rem .7rem;padding:.35rem .5rem;background:var(--surface);border:1px solid var(--border);border-radius:0 0 var(--radius-sm) var(--radius-sm);box-shadow:var(--shadow)}
+.part-nav-group{display:flex;align-items:center;flex-wrap:wrap;gap:.25rem}
+.part-nav button{min-height:36px;padding:.2rem .55rem;font-size:.92rem;white-space:nowrap;font-variant-numeric:tabular-nums}
+.part-nav [aria-current=true]{background:var(--primary-weak);color:var(--navy);border-color:var(--primary);box-shadow:inset 0 -2px var(--primary)}
+#draft-resume{overflow-wrap:anywhere;text-align:left}
+@media(min-width:951px){aside{top:var(--part-nav-clearance,4rem);max-height:calc(100vh - var(--part-nav-clearance,4rem) - .65rem)}}
+@media(max-width:330px),(max-height:400px){.part-nav{position:static}html{scroll-padding-top:0}}
+</style>
+</head>
+<body>
+<a class="skip" id="skip-link" href="#student-name">Skip to student details</a>
+<header class="top"><div class="wrap">
+<h1>Checking Account Fees at Real Banks</h1>
+<p>9th Grade Financial Literacy, Banking Unit <span class="eyebrow"> · CW9</span></p>
+</div></header>
+<main class="wrap">
+<section class="card" id="draft-choice" aria-labelledby="draft-title" hidden>
+<h2 id="draft-title" tabindex="-1">Is this your saved work?</h2>
+<p id="draft-message">Resume only if this is your draft. If you’re a different student, start with a blank worksheet.</p>
+<div class="actions"><button id="draft-resume" type="button"></button><button id="draft-new" type="button" class="secondary">Start a different student</button></div>
+<p id="draft-status" role="status" class="small"></p>
+</section>
+<div id="worksheet" hidden>
+<nav class="part-nav" id="part-nav" aria-label="Worksheet parts">
+<div class="part-nav-group" id="part-jumps"></div>
+<div class="part-nav-group">
+<button id="part-back" class="secondary" type="button" aria-label="Back one part">Back</button>
+<button id="part-next" class="secondary" type="button" aria-label="Next part">Next</button>
+</div>
+<button id="part-resume" type="button">Resume first unfinished question</button>
+</nav>
+<section class="card" aria-labelledby="direction-title">
+<h2 id="direction-title">Directions</h2>
+<p>Study the fee schedule and the worked example. Then complete Parts 1 to 4. Click inside a yellow box to type your answer, and show your math. You may use a calculator.</p>
+<p class="muted small">Use the labeled fields to check facts and amounts. Write complete sentences where a written answer is requested; your teacher will review those responses. Show your math where there is a separate work box.</p>
+<form id="student" class="student-fields" aria-label="Student details" autocomplete="off">
+<div><label for="student-name">Student name</label><input id="student-name" name="name" autocomplete="off" required maxlength="120"></div>
+<div><label for="period">Period</label><select id="period" name="period" required><option value="">Choose a period</option><option value="2">Period 2</option><option value="3">Period 3</option><option value="5">Period 5</option><option value="6">Period 6</option><option value="7">Period 7</option><option value="10">Period 10</option></select></div>
+<div><label for="date">Date</label><input id="date" name="date" type="date" required></div>
+</form>
+<p id="storage-status" class="muted small" role="status">Your work saves on this device as you type.</p>
+</section>
+<div class="layout">
+<div>
+<section class="card" aria-label="Worksheet progress"><div class="progress" aria-live="polite"><strong id="progress-text">0 answered</strong><strong id="objective-progress"></strong><strong id="written-progress"></strong><progress id="progress" value="0" max="1" aria-label="Answered questions"></progress></div><p class="muted small no-margin">Objective checks help you catch mistakes. They are not your assignment grade.</p></section>
+<div id="parts"></div>
+<section class="card" aria-labelledby="results-heading">
+<h2 id="results-heading">Results</h2>
+<p>Complete each answer and any “Show your math” box, then create your results. Paste each response into its matching yellow box in the Google Doc. Include the results code if your teacher asks for it.</p>
+<div class="actions"><button id="finish" type="submit" form="student">Create results</button><button id="print" type="button" class="secondary">Print / Save as PDF</button><button id="reset" type="button" class="secondary">Reset</button><button id="clear-device" type="button" class="secondary" aria-describedby="clear-device-help">Clear this device</button></div>
+<p id="clear-device-help" class="small muted">After you turn in your work, use Clear this device to remove your saved name, period, and answers from this browser.</p>
+<p id="results-status" role="status" class="small"></p>
+<div id="result-output" hidden>
+<label for="result-code">Results code</label><textarea id="result-code" class="code" rows="3" readonly spellcheck="false"></textarea>
+<label for="result-text">Plain-text answers and work</label><textarea id="result-text" rows="10" readonly spellcheck="false"></textarea>
+<div class="actions"><button id="copy" type="button">Copy results</button><button id="copy-code" type="button" class="secondary">Copy code only</button></div>
+</div>
+</section>
+</div>
+<aside aria-label="Reference materials">
+<details class="card reference" id="reference" open>
+<summary><h2>Reference Guide: Fee Schedules for Three Real Banks</h2></summary>
+<p class="small">These are three large banks with branches in New Jersey. The table shows the standard checking account at each one: Chase Total Checking, Bank of America Advantage Plus Banking, and TD Bank Convenience Checking. Fees were checked in November 2026. Use this table for the whole assignment.</p>
+<div class="table-area fee-scroll" tabindex="0" role="region" aria-label="Scrollable fee schedule">
+<table aria-label="Checking account fee schedule">
+<thead><tr><th scope="col">Fee</th><th scope="col">Chase</th><th scope="col">Bank of America</th><th scope="col">TD Bank</th></tr></thead>
+<tbody>
+<tr><th scope="row">Monthly maintenance fee</th><td class="num">$15 per month</td><td class="num">$12 per month</td><td class="num">$15 per month</td></tr>
+<tr><th scope="row">How to get the monthly fee waived</th><td>Qualifying direct deposits of $500 or more in the month, OR a balance of $1,500 or more every day</td><td>One direct deposit of $250 or more in the month, OR a balance of $1,500 or more every day</td><td>Keep a balance of at least $250 every day of the month</td></tr>
+<tr><th scope="row">Out-of-network ATM fee (charged by your own bank, each withdrawal)</th><td class="num">$3.00</td><td class="num">$2.50</td><td class="num">$3.00</td></tr>
+<tr><th scope="row">Overdraft fee (each payment that overdraws the account)</th><td class="num">$34 per payment</td><td class="num">$10 per payment</td><td class="num">$35 per payment</td></tr>
+<tr><th scope="row">Most overdraft fees in one day</th><td class="num">3 fees per day</td><td class="num">2 fees per day</td><td class="num">3 fees per day</td></tr>
+</tbody></table></div>
+<p class="small">Reminder: Use only the fees in this table. Assume every overdraft is big enough to be charged, and ignore overdraft protection plans. Ignore the owner's surcharge that some ATMs add.</p>
+</details>
+<details class="card reference"><summary><h2>Worked Example (Guided Practice)</h2></summary>
+<p><strong>How to show your math:</strong> List each fee, explain whether it applies, then add the amounts.</p>
+<p>Dani banks at Chase. This month she has $380 in direct deposits, her balance never reaches $1,500, she uses an out-of-network ATM 1 time, and she has no overdrafts.</p>
+<div class="table-area" tabindex="0" role="region" aria-label="Worked example table"><table aria-label="Dani’s Chase fees">
+<thead><tr><th scope="col">Fee</th><th scope="col">How we figure it out</th><th scope="col">Amount</th></tr></thead>
+<tbody><tr><th scope="row">Monthly maintenance fee</th><td>$380 is less than $500 and her balance stays under $1,500, so the fee is NOT waived.</td><td class="num">$15</td></tr><tr><th scope="row">ATM fees</th><td>1 withdrawal x $3</td><td class="num">$3</td></tr><tr><th scope="row">Overdraft fees</th><td>0 overdrafts</td><td class="num">$0</td></tr><tr><th scope="row">Total for the month</th><td>$15 + $3 + $0</td><td class="num">$18</td></tr></tbody></table></div>
+<p>Over 12 months: $18 x 12 = $216 in fees.</p>
+</details>
+</aside>
+</div>
+</div>
+<noscript><p class="card">Turn on JavaScript in your browser to use the interactive worksheet.</p></noscript>
+</main>
+<footer class="wrap muted small"><p><strong>Finished? Copy your results and turn them in on Google Classroom.</strong></p><p>You can work offline once this page is open.</p><p>Reference: Consumer Financial Protection Bureau, Bank Accounts. The students in the scenarios are made up, but the bank fees come from each bank's published fee guides (checked November 2026). Fees change often, so check a bank's current schedule before you open an account.</p></footer>
+<section id="printView" aria-label="Printable results"><pre id="print-text"></pre><p class="code" id="print-code"></p></section>
+<script>
+'use strict';
+const APP='checking-fees', VERSION=2, STORAGE='finlit.checking-fees.v2', LEGACY='finlit.checking-fees.v1';
+// All calculations are integer cents. Bank and row orders match the fee schedule.
+const banks=['Chase','Bank of America','TD Bank'];
+const fees=[{monthly:1500,deposit:50000,balance:150000,atm:300,od:3400,cap:3},{monthly:1200,deposit:25000,balance:150000,atm:250,od:1000,cap:2},{monthly:1500,deposit:Infinity,balance:25000,atm:300,od:3500,cap:3}];
+function bill(i,deposit,balance,atms,overdrafts){
+  const f=fees[i];
+  const rows=[deposit>=f.deposit||balance>=f.balance?0:f.monthly,atms*f.atm,overdrafts*f.od];
+  return [...rows,sum(rows)];
+}
+const sum=xs=>xs.reduce((a,b)=>a+b,0);
+const dani=bill(0,38000,0,1,0), jada=bill(0,35000,0,4,2), marco=bill(1,40000,0,5,1), priya=bill(2,0,30000,3,0), priyaOwn=bill(2,0,30000,0,0);
+const riley=fees.map((_,i)=>bill(i,32000,0,2,1)), rileyNew=fees.map((_,i)=>bill(i,60000,0,2,1));
+const firstJob=fees.map((_,i)=>bill(i,20000,15000,0,0)[0]);
+const totals={dani:dani[3],daniYear:dani[3]*12,jada:jada[3],jadaYear:jada[3]*12,marco:marco[3],jadaMinusMarco:jada[3]-marco[3],priya:priya[3],priyaOwn:priyaOwn[3],priyaSavings:(priya[3]-priyaOwn[3])*12,riley:riley.map(x=>x[3]),rileyGap:Math.max(...riley.map(x=>x[3]))-Math.min(...riley.map(x=>x[3])),rileyNew:rileyNew.map(x=>x[3]),overdraftSpread:fees[2].od-fees[1].od,dailyCaps:fees.map(x=>x.od*x.cap),firstJob};
+const money=c=>'$'+(c%100===0?(c/100).toLocaleString('en-US'):(c/100).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}));
+const amountPattern='-?(?:\\d{1,3}(?:,\\d{3})+|\\d+)(?:\\.\\d{1,2})?|-?\\.\\d{1,2}';
+function parseMoney(s){
+  const match=s.trim().match(new RegExp('^(?:(?:about|approximately|around)\\s+|~\\s*)?(?:USD\\s+)?\\$?\\s*('+amountPattern+')(?:\\s+(?:dollars?|USD))?[.!]?$','i'));
+  return match?Math.round(Number(match[1].replaceAll(',',''))*100):null;
+}
+const labels=['Monthly maintenance fee','ATM fees (2 withdrawals)','Overdraft fees (1 payment)','Total fees for the month'];
+const groups=[
+{title:'Part 1: Read the Fee Schedule',intro:'Use the Reference Guide to answer each question in a complete sentence.',questions:[
+['A','1a','Which bank has the lowest monthly maintenance fee, and how much is it?','Compare the first fee row at all three banks.','Bank of America is lowest: $12 is less than $15 at Chase and $15 at TD Bank.'],
+['B','1b','What are two different ways a Chase customer can get the $15 monthly fee waived? What do we call a payment that goes from an employer straight into your account?','Use the Chase waiver row. Include both dollar thresholds and name the type of deposit.','Chase waives the fee with $500 or more in qualifying direct deposits for the month OR $1,500 or more in the account every day. A payment from your employer straight into your account is a direct deposit.'],
+['C','1c','Which bank charges the least for an overdraft, and which charges the most? How much more is the highest fee than the lowest?','Compare the fee for one payment, then subtract the smaller fee from the larger one.','Bank of America charges the least ($10); TD Bank charges the most ($35). $35 − $10 = $25 more.'],
+['D','1d','Look at the last row of the table. What is the most a customer could pay in overdraft fees in one day at Chase? At Bank of America? Show your math.','Multiply the fee for one overdraft by the most fees charged in one day.','Chase: 3 × $34 = $102. Bank of America: 2 × $10 = $20.']
+]},
+{title:'Part 2: Three Students, Three Monthly Fee Bills',contexts:{E:"Scenario A: Jada at Chase. Jada's direct deposits total $350 this month, and her balance stays under $1,500. She uses an out-of-network ATM 4 times and overdraws her account on 2 payments.",H:'Scenario B: Marco at Bank of America. Marco gets one direct deposit of $400 this month. He uses an out-of-network ATM 5 times and overdraws his account on 1 payment.',J:'Scenario C: Priya at TD Bank. Priya keeps at least $300 in her account every day this month. She uses an out-of-network ATM 3 times and has no overdrafts.'},questions:[
+['E','2a',"Was Jada's monthly maintenance fee waived? Explain why or why not.",'Check both ways to waive the Chase fee. Explain how Jada compares with each.','No. $350 is below the $500 deposit requirement, and her balance is below $1,500. She pays $15.'],
+['F','2b',"Find Jada's total fees for the month. Show each fee on its own line, then add them up.",'Start with the monthly fee. Add four ATM charges and two overdraft charges.','Maintenance: $15.\nATM: 4 × $3 = $12.\nOverdraft: 2 × $34 = $68.\nTotal: $15 + $12 + $68 = $95.'],
+['G','2c','If Jada pays the same fees every month, how much will she pay in fees in 12 months?','Multiply Jada’s monthly total by the number of months.','$95 × 12 = $1,140.'],
+['H','2d',"Find Marco's total fees for the month. Show your math.",'Compare Marco’s one deposit with the Bank of America waiver threshold before adding the other fees.','$400 is at least $250 in a single direct deposit, so maintenance is $0. ATM: 5 × $2.50 = $12.50. Overdraft: 1 × $10 = $10. Total: $0 + $12.50 + $10 = $22.50.'],
+['I','2e','How much less did Marco pay in fees than Jada this month?','Subtract Marco’s monthly total from Jada’s monthly total.','$95 − $22.50 = $72.50 less.'],
+['J','2f',"Why was Priya's monthly maintenance fee $0? How much did she pay in ATM fees?",'Compare Priya’s daily balance with TD’s daily minimum. Then multiply the ATM fee by the number of withdrawals.','She kept at least $300 every day, above TD’s $250 minimum, so maintenance was $0. She paid 3 × $3 = $9 in ATM fees.'],
+['K','2g',"Find Priya's total fees for the month. Show your math.",'Add maintenance, ATM and overdraft charges. Include zeros for fees Priya did not pay.','$0 + (3 × $3) + $0 = $9.'],
+['L','2h','If Priya uses only TD Bank ATMs from now on, what will her new monthly total be, and how much will she save over 12 months?','First find the new monthly total. Subtract it from the old one, then multiply the difference by 12.','New monthly total: $0 + $0 + $0 = $0. Savings: ($9 − $0) × 12 = $108.']
+]},
+{title:'Part 3: One Student, Three Banks',intro:'Scenario D: Riley. Riley is deciding where to open an account. In a typical month, Riley gets one direct deposit of $320, and the daily balance stays around $400, except on the one day the account is overdrawn. Riley uses an out-of-network ATM 2 times and overdraws on 1 payment.',questions:[
+['M','3a','Complete the table to show what Riley would pay at each bank in one month.','Check the waiver for each bank separately. At TD, the balance rule must hold even on the overdraft day. Then add each bank’s three fee amounts.','Chase: $15 + 2 × $3 + $34 = $55.\nBank of America: one $320 deposit meets the $250 rule; $0 + 2 × $2.50 + $10 = $15.\nTD: one day below $250 means maintenance is not waived; $15 + 2 × $3 + $35 = $56.'],
+['N','3b','Which bank is cheapest for Riley? How much less is it than the most expensive bank?','Identify the smallest and largest totals from your table. Subtract the smaller from the larger.','Bank of America is cheapest at $15. TD is highest at $56. $56 − $15 = $41 less.'],
+['O','3c',"At TD Bank, Riley's one overdraft cost more than just the $35 overdraft fee. Explain why.",'Check what the balance must be every day at TD. What other fee applies if the balance goes below it once?','On the overdraft day, Riley’s balance was below $250. The rule applies every day, so Riley also owes the $15 maintenance fee. Those two fees add up to $50, before ATM fees.'],
+['P','3d',"Riley picks up more hours at work, and direct deposits rise to $600 a month. Which bank's monthly fee is newly waived? What is Riley's new total at that bank, and which bank is now the most expensive of the three?",'Check which waiver changes at $600. Remove that maintenance fee and compare all three new totals.','Chase is newly waived: $600 meets the $500 rule. Its new total is $0 + $6 + $34 = $40. Bank of America stays at $15, and TD remains the most expensive at $56.']
+]},
+{title:'Part 4: Choose and Reflect',questions:[
+['Q','4a','Your turn: You earn $200 a month from a part-time job (paid by direct deposit), keep about $150 in your account, and never use out-of-network ATMs. Assume no overdrafts. Calculate your monthly maintenance fee at each bank, then say which bank you would choose.','Check all three waiver rules. Name each bank with its fee and say which you’d pick.','$200 in deposits and a roughly $150 balance do not meet any waiver rule. Chase costs $15; Bank of America costs $12; TD costs $15. On fees alone, choose Bank of America, which costs $3 less. Other choices can make sense for reasons besides these fees.'],
+['R','4b',"TD Bank only asks for a $250 balance, which sounds easy to meet. Using Riley's totals from Part 3, explain why an easy-sounding waiver rule can still cost a customer money.",'Use Riley’s TD total and explain what happened to the waiver on the overdraft day.','Riley usually has about $400, but TD needs $250 every day. One day below $250 brings back the $15 fee. Riley pays $56 at TD, compared with $55 at Chase and $15 at Bank of America.'],
+['S','4c','Name two habits or account settings that would help a student avoid checking account fees. Explain how each one saves money.','Pick two different actions. For each, name the fee it can help you avoid.','One example: use in-network ATMs to avoid out-of-network ATM fees. Also, check your balance and pending payments before spending to avoid overdraft fees. Other reasonable habits can work too; your teacher can review them.']
+]}
+];
+const questions=groups.flatMap(g=>g.questions);
+const amount=(key,label,expected)=>({key,label,expected});
+const select=(key,label,expected,options=banks)=>({key,label,expected,options});
+const feeLineLabels=['Monthly maintenance fee','ATM fees','Overdraft fees','Total fees for the month'];
+const gridFields=labels.flatMap((label,row)=>banks.map((bank,col)=>amount(`${row}-${col}`,`${bank}: ${label}`,riley[col][row])));
+const objectiveFields={
+  A:[select('bank','Bank with the lowest maintenance fee',banks[1]),amount('fee','Lowest monthly maintenance fee',fees[1].monthly)],
+  C:[select('least','Bank charging the least',banks[1]),select('most','Bank charging the most',banks[2]),amount('difference','Difference per overdraft',totals.overdraftSpread)],
+  D:[amount('chase','Chase maximum in one day',totals.dailyCaps[0]),amount('boa','Bank of America maximum in one day',totals.dailyCaps[1])],
+  E:[select('waived','Was Jada’s maintenance fee waived?','No',['Yes','No'])],
+  F:feeLineLabels.map((label,i)=>amount(`fee-${i}`,label,jada[i])),
+  G:[amount('year','Total fees over 12 months',totals.jadaYear)],
+  H:[amount('total','Marco’s monthly total',totals.marco)],
+  I:[amount('difference','How much less Marco paid',totals.jadaMinusMarco)],
+  J:[amount('atm','Priya’s ATM fees',priya[1])],
+  K:[amount('total','Priya’s monthly total',totals.priya)],
+  L:[amount('monthly','New monthly total',totals.priyaOwn),amount('savings','Savings over 12 months',totals.priyaSavings)],
+  M:gridFields,
+  N:[select('cheapest','Cheapest bank',banks[1]),amount('difference','How much less than the most expensive bank',totals.rileyGap)],
+  P:[select('waived','Bank whose fee is newly waived',banks[0]),amount('total','New monthly total at that bank',totals.rileyNew[0]),select('most','Most expensive bank now',banks[2])],
+  Q:banks.map((bank,i)=>amount(`maintenance-${i}`,`${bank} monthly maintenance fee`,firstJob[i]))
+};
+const reviewLabels={B:'Written answer',E:'Explain why or why not',J:'Explain why the maintenance fee was $0',O:'Explain why the overdraft cost more',Q:'Which bank would you choose?',R:'Written explanation',S:'Written answer'};
+const workQuestions=new Set(['D','H','K']);
+const fieldId=(id,f)=>`${id}-${f.key}`;
+const answerValue=(draft,key)=>typeof draft[key]==='string'?draft[key].trim():'';
+function checkField(field,value){
+  if(!value)return 'b';
+  const actual=field.options?value:parseMoney(value);
+  return actual===field.expected?'c':'i';
+}
+function evaluate(draft){
+  const objective={correct:0,total:0}, written={answered:0,awaiting:0}, perQuestion={}, byQuestion={};
+  for(const [id] of questions){
+    const fields=objectiveFields[id]||[], values=fields.map(f=>answerValue(draft,fieldId(id,f)));
+    const marks=fields.map((f,i)=>checkField(f,values[i]));
+    const response=answerValue(draft,`${id}-written`), work=answerValue(draft,`${id}-math`);
+    objective.total+=marks.length;
+    objective.correct+=marks.filter(x=>x==='c').length;
+    if(reviewLabels[id]&&response){written.answered++;written.awaiting++;}
+    const filled=marks.every(x=>x!=='b')&&(!reviewLabels[id]||Boolean(response));
+    // A mixed response that contains prose still needs teacher review; its facts count separately.
+    perQuestion[id]=response&&reviewLabels[id]?'r':marks.includes('i')?'i':fields.length&&filled?'c':'b';
+    byQuestion[id]={values,marks,response,work,complete:filled&&(!workQuestions.has(id)||Boolean(work))};
+  }
+  return {objective,written,perQuestion,byQuestion};
+}
+function resultCode(name,period,{objective,written,perQuestion},timestamp=Math.floor(Date.now()/1000)){
+  const bytes=new TextEncoder().encode(JSON.stringify({app:APP,version:VERSION,name,period,objective,written,perQuestion,timestamp}));
+  return btoa(String.fromCharCode(...bytes));
+}
+function objectiveLine({correct,total}){return `Objective checks: ${correct} of ${total} correct`;}
+function writtenLine({awaiting}){return `${awaiting} written ${awaiting===1?'answer':'answers'} awaiting your review`;}
+function migrateDraft(old){
+  const draft={}, legacy={};
+  for(const key of ['student-name','period','date'])if(typeof old[key]==='string')draft[key]=old[key];
+  for(const [id] of questions){
+    const answer=typeof old[id+'-answer']==='string'?old[id+'-answer']:'', work=typeof old[id+'-math']==='string'?old[id+'-math']:'';
+    const fields=objectiveFields[id]||[];
+    if(id==='M')for(const field of fields){const key=fieldId(id,field);if(typeof old[key]==='string')draft[key]=old[key];}
+    if(workQuestions.has(id))draft[id+'-math']=work;
+    if(reviewLabels[id]&&!fields.length){
+      draft[id+'-written']=[answer,work].filter(x=>x.trim()).join('\n\n');
+    }else{
+      if(fields.length===1&&answer.trim()){
+        const f=fields[0], value=f.options?f.options.find(x=>x.toLowerCase()===answer.trim().toLowerCase()):(parseMoney(answer)!==null?answer:'');
+        if(value)draft[fieldId(id,f)]=value;
+      }
+      const unusedWork=!workQuestions.has(id)&&work.trim();
+      // Mixed prose cannot be split reliably. Keep the original, without guessing a bank or amount.
+      if((answer.trim()&&!fields.some(f=>draft[fieldId(id,f)]===answer))||unusedWork)legacy[id]={answer,work:unusedWork?work:''};
+    }
+  }
+  return {draft,legacy};
+}
+// Interface
+const $=id=>document.getElementById(id);
+const student=$('student'), nameInput=$('student-name'), dateInput=$('date'), periodInput=$('period');
+const partRoot=$('parts'), output=$('result-output');
+const controls=new Map(), partStatus=[], partHeads=[], partJumps=[];
+const worksheet=$('worksheet'), draftChoice=$('draft-choice'), nav=$('part-nav'), resumeQuestion=$('part-resume');
+let legacy={}, pending=null, firstUnfinished=null, activePart=0, resultTimestamp=null;
+const add=(parent,tag,text='',className='')=>{const n=document.createElement(tag);n.textContent=text;if(className)n.className=className;parent.append(n);return n;};
+const put=(node,text)=>{if(node.textContent!==text)node.textContent=text;};
+function objectiveControl(parent,id,field,grid=false){
+  const key=fieldId(id,field);
+  if(!grid)add(parent,'label',field.label).htmlFor=key;
+  const input=add(parent,field.options?'select':'input','','answer');input.id=key;
+  if(grid)input.setAttribute('aria-label',field.label);
+  if(field.options){add(input,'option','Choose…').value='';for(const option of field.options)add(input,'option',option).value=option;}
+  else{input.type='text';input.inputMode='decimal';input.maxLength=40;}
+  const status=add(parent,grid?'span':'p','','field-status small');status.id=key+'-status';
+  input.setAttribute('aria-describedby',`${status.id} feedback-${id}${grid?' grid-feedback':''}`);
+  return {input,status};
+}
+function writtenControl(box,id,key,label,promptId){
+  const lab=add(box,'label',label,'review-label');lab.htmlFor=`${id}-${key}`;lab.id=lab.htmlFor+'-label';
+  const input=add(box,'textarea','',key==='math'?'math':'answer');input.id=lab.htmlFor;input.rows=2;
+  input.setAttribute('aria-labelledby',`${promptId} ${lab.id}`);
+  return input;
+}
+function renderParts(){
+for(const [index,group] of groups.entries()){
+  const section=add(partRoot,'section','','card part');
+  const heading=add(section,'h2',group.title);heading.id='part-'+(index+1);heading.tabIndex=-1;section.setAttribute('aria-labelledby',heading.id);
+  partHeads.push(heading);
+  const jump=add($('part-jumps'),'button','','secondary');jump.type='button';jump.id='jump-part-'+(index+1);
+  jump.setAttribute('data-part-jump','');jump.setAttribute('aria-controls',heading.id);
+  jump.addEventListener('click',()=>visitPart(index));partJumps.push(jump);
+  partStatus.push(add(section,'p','','chip'));
+  if(group.intro)add(section,'p',group.intro,index===2?'scenario':'');
+  for(const [id,title,prompt,,steps] of group.questions){
+    const context=group.contexts?.[id]?add(section,'p',group.contexts[id],'scenario'):null;
+    if(context)context.id='scenario-'+id;
+    const box=add(section,'section','','question');
+    box.dataset.partIndex=index;
+    const h=add(box,'p',title.at(-1)+'. '+prompt,'prompt');h.id='prompt-'+id;h.tabIndex=-1;box.setAttribute('aria-labelledby',h.id);
+    const checks=[];
+    if(id==='M'){
+      const wrap=add(box,'div','','table-area grid');wrap.tabIndex=0;wrap.setAttribute('role','region');wrap.setAttribute('aria-label','Scrollable Riley fee table');
+      const table=add(wrap,'table');add(table,'caption','Riley’s monthly fees');
+      const top=add(add(table,'thead'),'tr');for(const col of ['Fee',...banks])add(top,'th',col).scope='col';
+      const body=add(table,'tbody');
+      for(const [row,label] of labels.entries()){
+        const tr=add(body,'tr','',row===3?'grid-total':'');add(tr,'th',label).scope='row';
+        for(let col=0;col<banks.length;col++)checks.push(objectiveControl(add(tr,'td'),id,gridFields[row*banks.length+col],true));
+      }
+      const sub=add(box,'p','','grid-feedback small');sub.id='grid-feedback';sub.setAttribute('aria-live','polite');
+    }else if(objectiveFields[id]){
+      const wrap=add(box,'div','','objective-fields');
+      for(const field of objectiveFields[id])checks.push(objectiveControl(add(wrap,'div'),id,field));
+    }
+    const written=reviewLabels[id]?writtenControl(box,id,'written',`${reviewLabels[id]} (teacher review)`,h.id):null;
+    const work=workQuestions.has(id)?writtenControl(box,id,'math','Show your math',h.id):null;
+    const msg=add(box,'p','','feedback small');msg.id='feedback-'+id;msg.setAttribute('aria-live','polite');
+    const prior=add(box,'details','','legacy');prior.hidden=true;add(prior,'summary','Your saved answer from the previous version');
+    const priorText=add(prior,'p','','small legacy-copy');
+    controls.set(id,{checks,written,work,msg,prior,priorText,prompt:h,context});
+    const reveal=add(box,'details','','explain');add(reveal,'summary','Explain it');const content=add(reveal,'p',steps,'small');content.style.whiteSpace='pre-line';
+  }
+}
+}
+function markPart(index){
+  activePart=index;
+  partJumps.forEach((button,i)=>button.setAttribute('aria-current',String(i===index)));
+  $('part-back').disabled=index===0;
+  $('part-next').disabled=index===groups.length-1;
+}
+function navHeight(){return getComputedStyle(nav).position==='sticky'?nav.offsetHeight:0;}
+function setNavClearance(){document.documentElement.style.setProperty('--part-nav-clearance',`${navHeight()+8}px`);}
+function syncPartToScroll(){
+  if(worksheet.hidden)return;
+  const line=navHeight()+36;
+  let index=0;
+  partHeads.forEach((heading,i)=>{if(heading.getBoundingClientRect().top<=line)index=i;});
+  if(index!==activePart)markPart(index);
+}
+function visit(target,index,scrollTarget=target){
+  markPart(index);
+  target.focus({preventScroll:true});
+  scrollTarget.scrollIntoView({block:'start'});
+}
+function visitPart(index){if(partHeads[index])visit(partHeads[index],index);}
+$('part-back').addEventListener('click',()=>visitPart(activePart-1));
+$('part-next').addEventListener('click',()=>visitPart(activePart+1));
+resumeQuestion.addEventListener('click',()=>{
+  if(!firstUnfinished)return;
+  const {prompt,context}=controls.get(firstUnfinished);
+  visit(prompt,Number(prompt.parentElement.dataset.partIndex),context||prompt);
+});
+partRoot.addEventListener('focusin',e=>{
+  const question=e.target.closest('.question');
+  if(question)markPart(Number(question.dataset.partIndex));
+});
+window.addEventListener('scroll',syncPartToScroll,{passive:true});
+window.addEventListener('resize',setNavClearance);
+if(typeof ResizeObserver==='function')new ResizeObserver(setNavClearance).observe(nav);
+function localDate(){const n=new Date();return `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}-${String(n.getDate()).padStart(2,'0')}`;}
+function fields(){return [nameInput,periodInput,dateInput,...[...controls.values()].flatMap(({checks,written,work})=>[...checks.map(c=>c.input),written,work].filter(Boolean))];}
+function snapshot(){return Object.fromEntries(fields().map(f=>[f.id,f.value]));}
+function showLegacy(){
+  for(const [id,c] of controls){const prev=legacy[id];c.prior.hidden=!prev;put(c.priorText,prev?[prev.answer&&'Previous answer: '+prev.answer,prev.work&&'Previous work: '+prev.work].filter(Boolean).join('\n\n'):'');}
+}
+function savedStatus(time){
+  if(Number.isFinite(time))put($('storage-status'),'Saved on this device at '+new Date(time).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'}));
+}
+function openWorksheet(saved=null,fromLegacy=false){
+  renderParts();
+  nameInput.value=periodInput.value='';dateInput.value=localDate();
+  if(saved){
+    legacy=saved.legacy||{};
+    for(const field of fields())if(typeof saved.draft[field.id]==='string')field.value=saved.draft[field.id];
+    showLegacy();
+    if(fromLegacy){
+      if(save()){try{localStorage.removeItem(LEGACY);}catch{}}
+    }else savedStatus(saved.savedAt);
+  }
+  pending=null;draftChoice.hidden=true;put($('draft-resume'),'');
+  const skip=$('skip-link');skip.href='#student-name';put(skip,'Skip to student details');
+  worksheet.hidden=false;markPart(0);refresh();setNavClearance();
+}
+function chooseDraft(){
+  let v2,v1;
+  try{v2=localStorage.getItem(STORAGE);v1=v2===null?localStorage.getItem(LEGACY):null;}
+  catch{openWorksheet();put($('storage-status'),'Saving is unavailable in this browser. Copy or print your work before you leave.');return;}
+  if(v2===null&&v1===null){openWorksheet();return;}
+  const button=$('draft-resume');
+  // Until Resume, saved work stays in memory only. No answer controls or legacy text are mounted.
+  try{
+    const saved=v2!==null?JSON.parse(v2):migrateDraft(JSON.parse(v1));
+    if(!saved?.draft||typeof saved.draft!=='object'||Array.isArray(saved.draft))throw new Error('Invalid draft');
+    pending={saved,fromLegacy:v2===null};
+    const name=answerValue(saved.draft,'student-name')||'unnamed student';
+    const period=answerValue(saved.draft,'period')||'not entered';
+    const time=Number.isFinite(saved.savedAt)?new Date(saved.savedAt).toLocaleString():'time unknown';
+    put(button,`Resume ${name} · Period ${period} · saved ${time}`);
+  }catch{button.hidden=true;put($('draft-message'),'This saved draft could not be opened. Start a different student to clear it and use a blank worksheet.');}
+  const skip=$('skip-link');skip.href='#draft-title';put(skip,'Skip to saved work choice');
+  draftChoice.hidden=false;$('draft-title').focus();
+}
+$('draft-resume').addEventListener('click',()=>{
+  if(!pending)return;
+  openWorksheet(pending.saved,pending.fromLegacy);
+  nameInput.focus();
+});
+function deleteDraft(){
+  try{localStorage.removeItem(LEGACY);localStorage.removeItem(STORAGE);return true;}
+  catch{return false;}
+}
+$('draft-new').addEventListener('click',()=>{
+  if(draftChoice.hidden||!window.confirm('Delete the saved draft from this device and start a blank worksheet for a different student? This cannot be undone.'))return;
+  if(!deleteDraft()){put($('draft-status'),'This browser did not allow the saved draft to be cleared.');return;}
+  openWorksheet();nameInput.focus();
+});
+function save(){
+  try{
+    const savedAt=Date.now();localStorage.setItem(STORAGE,JSON.stringify({draft:snapshot(),legacy,savedAt}));savedStatus(savedAt);return true;
+  }catch{put($('storage-status'),'Saving is unavailable in this browser. Copy or print your work before you leave.');return false;}
+}
+function gridNote(values){
+  const nums=values.map(parseMoney);
+  return banks.map((bank,i)=>{
+    const column=labels.map((_,row)=>nums[row*banks.length+i]);
+    if(column.slice(0,3).some(n=>n===null))return '';
+    const expected=sum(column.slice(0,3));
+    return column[3]===null?`${bank}: your fees add to ${money(expected)}. Enter your total.`:column[3]===expected?`${bank}: your total matches your three fees.`:`${bank}: total does not match your three fees (${money(expected)}).`;
+  }).filter(Boolean).join(' ');
+}
+function refresh(){
+  const results=evaluate(snapshot());let complete=0;firstUnfinished=null;
+  for(const [i,g] of groups.entries()){
+    let partComplete=0;
+    for(const [id,,,hint] of g.questions){
+      const r=results.byQuestion[id],{checks,msg}=controls.get(id);
+      if(r.complete){complete++;partComplete++;}else if(!firstUnfinished)firstUnfinished=id;
+      for(const [index,{input,status}] of checks.entries()){
+        const mark=r.marks[index],field=objectiveFields[id][index];
+        const validFormat=Boolean(field.options)||parseMoney(r.values[index])!==null;
+        input.setAttribute('aria-invalid',String(mark==='i'));
+        status.className='field-status small'+(mark==='c'?' ok':mark==='i'?' try':'');
+        put(status,mark==='c'?'Correct':mark==='i'?(validFormat?'Check again':'Enter a dollar amount'):'');
+      }
+      const wrong=r.marks.includes('i');msg.className='feedback small'+(wrong?' try':'');
+      put(msg,[wrong?'Hint: '+hint:'',r.response&&reviewLabels[id]?'Written answer awaiting teacher review.':''].filter(Boolean).join(' '));
+      if(id==='M')put($('grid-feedback'),gridNote(r.values));
+    }
+    const done=partComplete===g.questions.length, progress=partStatus[i];progress.classList.toggle('done',done);
+    put(progress,done?'Complete · answers and any required work entered':`${partComplete} of ${g.questions.length} questions complete`);
+    put(partJumps[i],`Part ${i+1} ${done?'✓ ':''}${partComplete}/${g.questions.length}`);
+    partJumps[i].setAttribute('aria-label',`${g.title}, ${partComplete} of ${g.questions.length} questions complete`);
+  }
+  resumeQuestion.hidden=!firstUnfinished;
+  put($('progress-text'),`${complete} of ${questions.length} questions complete`);
+  put($('objective-progress'),objectiveLine(results.objective));put($('written-progress'),writtenLine(results.written));
+  $('progress').max=questions.length;$('progress').value=complete;
+  return results;
+}
+function summary(results){
+  const lines=[`${nameInput.value.trim()||'Name not entered'} | Period ${periodInput.value||'not entered'} | ${dateInput.value||'Date not entered'}`,objectiveLine(results.objective),`${results.written.awaiting} written ${results.written.awaiting===1?'answer':'answers'} awaiting teacher review`];
+  for(const group of groups){
+    lines.push('',group.title);
+    for(const [id,title] of group.questions){
+      const {values,marks,response,work}=results.byQuestion[id];
+      const checks=marks.length?`${marks.includes('b')?'checked so far':'checked'}: ${marks.filter(x=>x==='c').length} of ${marks.length} correct`:'';
+      const review=reviewLabels[id]?'awaiting teacher review':'';
+      lines.push(`${title}. [${[checks,review].filter(Boolean).join('; ')}]`);
+      if(id==='M'){
+        lines.push('  Chase | Bank of America | TD Bank');
+        for(const [row,label] of labels.entries())lines.push(`  ${label}: ${values.slice(row*3,row*3+3).map(x=>x||'—').join(' | ')}`);
+      }else for(const [i,field] of (objectiveFields[id]||[]).entries())lines.push(`  ${field.label}: ${values[i]||'[No answer]'}`);
+      if(reviewLabels[id])lines.push(`  ${reviewLabels[id]}: ${response||'[No answer]'}`);
+      if(workQuestions.has(id))lines.push(`  Show your math: ${work||'[No work entered]'}`);
+      if(!results.byQuestion[id].complete&&legacy[id]){
+        if(legacy[id].answer)lines.push('  Previous answer: '+legacy[id].answer);
+        if(legacy[id].work)lines.push('  Previous work: '+legacy[id].work);
+      }
+    }
+  }
+  return lines.join('\n');
+}
+function invalidate(){
+  resultTimestamp=null;
+  if(!output.hidden){output.hidden=true;put($('results-status'),'Work changed. Create results again to update the code.');}
+  for(const id of ['result-code','result-text'])$(id).value='';
+  for(const id of ['print-text','print-code'])put($(id),'');
+}
+function edit(e){if(worksheet.hidden)return;if(e.target===nameInput)nameInput.setCustomValidity('');save();refresh();invalidate();}
+student.addEventListener('input',edit);partRoot.addEventListener('input',edit);
+student.addEventListener('submit',e=>{
+  e.preventDefault();if(worksheet.hidden)return;nameInput.setCustomValidity(nameInput.value.trim()?'':'Enter your name, not just spaces.');
+  if(!student.reportValidity())return;
+  for(const [id,title] of questions){
+    const {checks,written,work}=controls.get(id);
+    const missing=[...checks.map(c=>c.input),written,work].find(x=>x&&!x.value.trim());
+    if(missing){put($('results-status'),`Finish question ${title}: fill in the highlighted answer or work box.`);missing.focus();return;}
+  }
+  const results=refresh();resultTimestamp=Math.floor(Date.now()/1000);
+  $('result-code').value=resultCode(nameInput.value.trim(),periodInput.value,results,resultTimestamp);
+  $('result-text').value=summary(results);
+  output.hidden=false;put($('results-status'),'Results are ready. Copy them or print a copy for yourself.');$('result-code').focus();
+});
+async function copy(codeOnly){
+  if(output.hidden)return;
+  const readyAt=resultTimestamp, results=evaluate(snapshot());
+  const code=resultCode(nameInput.value.trim(),periodInput.value,results,readyAt);
+  const text=codeOnly?code:summary(results)+'\n\nResults code: '+code;
+  const field=$(codeOnly?'result-code':'result-text');
+  try{await navigator.clipboard.writeText(text);}
+  catch{
+    if(output.hidden||resultTimestamp!==readyAt)return;
+    const original=field.value;field.value=text;field.focus();field.select();let copied=false;
+    try{copied=document.execCommand('copy');}catch{}
+    if(!copied){put($('results-status'),'Automatic copying is unavailable. Press Ctrl+C to copy the selected text.');return;}
+    field.value=original;
+  }
+  if(!output.hidden&&resultTimestamp===readyAt)put($('results-status'),codeOnly?'Results code copied.':'Results and code copied.');
+}
+$('copy').addEventListener('click',()=>copy(false));$('copy-code').addEventListener('click',()=>copy(true));
+function preparePrint(){
+  if(worksheet.hidden)return;
+  const results=refresh();put($('print-text'),summary(results));
+  put($('print-code'),output.hidden?'':'Results code: '+resultCode(nameInput.value.trim(),periodInput.value,results,resultTimestamp));
+}
+window.addEventListener('beforeprint',preparePrint);
+$('print').addEventListener('click',()=>{preparePrint();window.print();});
+function clearWorksheet(message){
+  if(worksheet.hidden||!window.confirm(message))return;
+  for(const field of fields())field.value='';nameInput.setCustomValidity('');dateInput.value=localDate();
+  partRoot.querySelectorAll('details[open]').forEach(d=>d.open=false);
+  legacy={};showLegacy();
+  const cleared=deleteDraft();
+  put($('storage-status'),cleared?'Your work saves on this device as you type.':'This browser did not allow the saved draft to be cleared.');
+  invalidate();refresh();markPart(0);
+  put($('results-status'),cleared?'Worksheet cleared.':'Worksheet cleared on screen, but the saved draft could not be removed.');
+  nameInput.focus();
+}
+$('reset').addEventListener('click',()=>clearWorksheet('Clear your student details, answers and work from this browser? This cannot be undone.'));
+$('clear-device').addEventListener('click',()=>clearWorksheet('Have you turned in your work? Clear your name, period, answers, and results from this device? This cannot be undone.'));
+chooseDraft();
+</script>
+</body>
+</html>
