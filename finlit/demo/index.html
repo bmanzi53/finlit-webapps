@@ -1,0 +1,635 @@
+<!doctype html>
+<!--
+  Financial Literacy Hub — teacher home page (index.html)
+  Owner: Mr. Manzi, Financial Literacy H0512, North Bergen High School, 2026-2027.
+  What it is: single self-contained page. No network requests, no fetch(), no external JS/CSS.
+    Opens straight from a local file path (file://) on a Chromebook, or from any static host.
+  Embedded data (inline application/json script blocks at the end of body):
+    #assignments-data  = data/assignments.json
+    #roster-data       = data/roster.json
+  How to regenerate: edit data/*.json (or this template: tools/hub.template.html), then run
+      python3 tools/build_hub.py
+    which re-inlines both JSON files and stamps the last-built date. Do not hand-edit index.html.
+  Links (all relative): apps/checking-fees/index.html, gradebook/index.html, data/*.json, README.md.
+  Design tokens: BUILD_SPEC.md section 2 (identical across hub, web app and gradebook).
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Financial Literacy Hub · Mr. Manzi · 2026-2027</title>
+<meta name="description" content="Teacher hub for 9th grade Financial Literacy: web app assignments, gradebook and class rosters.">
+<style>
+:root{
+  --navy:#12304f;
+  --navy-900:#0b1f36;
+  --primary:#1b5c9e;
+  --primary-weak:#e8f0f9;
+  --teal:#0f8a7e;
+  --gold:#b5791a;
+  --red:#b3261e;
+  --green:#1f7a3f;
+  --bg:#f4f6f9; --surface:#ffffff; --border:#dde4ec;
+  --text:#1b2733; --muted:#5b6b7c;
+  --radius:12px; --radius-sm:8px;
+  --shadow:0 1px 2px rgba(16,36,62,.06), 0 8px 24px rgba(16,36,62,.06);
+  --font: Inter, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --ring:0 0 0 3px rgba(27,92,158,.45);
+}
+*,*::before,*::after{box-sizing:border-box}
+html{font-size:100%;-webkit-text-size-adjust:100%}
+/* Projector (1920 wide): scale everything up a step. */
+@media (min-width:1700px){html{font-size:112.5%}}
+body{margin:0;font-family:var(--font);font-size:1rem;line-height:1.55;color:var(--text);background:var(--bg);
+  font-feature-settings:"cv11","ss01";-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{margin:0;color:var(--navy);line-height:1.25}
+p{margin:0}
+a{color:var(--primary)}
+ul,ol{margin:0;padding:0;list-style:none}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+:focus{outline:none}
+:focus-visible{outline:2px solid transparent;box-shadow:var(--ring);border-radius:var(--radius-sm)}
+.skip{position:absolute;left:1rem;top:-4rem;z-index:50;background:var(--surface);color:var(--primary);padding:.6rem 1rem;border-radius:var(--radius-sm);font-weight:600;text-decoration:none;box-shadow:var(--shadow)}
+.skip:focus{top:1rem}
+.wrap{max-width:88rem;margin:0 auto;padding:0 2rem}
+
+/* ---------- Header ---------- */
+.topbar{background:var(--navy-900);color:#fff}
+.topbar .wrap{display:flex;align-items:center;justify-content:space-between;gap:1.5rem;min-height:5.5rem;padding-top:1rem;padding-bottom:1rem;flex-wrap:wrap}
+.brand h1{color:#fff;font-size:1.75rem;font-weight:700;letter-spacing:-.01em}
+.brand .sub{color:#c8d3e0;font-size:1rem;margin-top:.15rem}
+.top-meta{display:flex;align-items:center;gap:.75rem;flex-wrap:wrap}
+.chip-mp{display:inline-flex;align-items:center;min-height:2rem;padding:0 .8rem;border-radius:999px;background:#fff;color:var(--navy-900);font-weight:700;font-size:.9375rem;letter-spacing:.02em}
+.stat{color:#fff;font-weight:600;font-size:1rem;font-variant-numeric:tabular-nums;padding:0 .25rem}
+.help-btn{display:inline-flex;align-items:center;gap:.5rem;min-height:2.5rem;padding:0 .9rem 0 .4rem;border-radius:999px;border:1px solid rgba(255,255,255,.35);background:transparent;color:#fff;font:inherit;font-weight:600;cursor:pointer}
+.help-btn .q{display:inline-grid;place-items:center;width:1.75rem;height:1.75rem;border-radius:50%;background:#fff;color:var(--navy-900);font-weight:700}
+.help-btn:hover{background:rgba(255,255,255,.08)}
+.topbar :focus-visible{box-shadow:0 0 0 3px rgba(255,255,255,.75);border-radius:999px}
+
+/* ---------- Layout ---------- */
+main{padding:2rem 0 3rem}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 26rem;gap:2rem;align-items:start}
+.section-head{display:flex;align-items:baseline;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:1rem}
+.section-head h2{font-size:1.375rem;font-weight:700}
+.count{color:var(--muted);font-size:.9375rem;font-variant-numeric:tabular-nums}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow)}
+
+/* ---------- Assignment cards ---------- */
+.unit + .unit{margin-top:2rem}
+.unit h3{font-size:1rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:.75rem;display:flex;align-items:center;gap:.75rem}
+.unit h3::after{content:"";flex:1;height:1px;background:var(--border)}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(20rem,1fr));gap:1.25rem}
+.acard{display:flex;flex-direction:column;gap:.75rem;padding:1.5rem;min-height:100%}
+.acard-top{display:flex;align-items:center;justify-content:space-between;gap:.75rem}
+.code{font-family:var(--mono);font-weight:700;font-size:.9375rem;color:var(--navy);background:var(--primary-weak);border-radius:6px;padding:.15rem .55rem}
+.acard h4{font-size:1.25rem;font-weight:700}
+.meta{color:var(--muted);font-size:.9375rem;font-variant-numeric:tabular-nums}
+.meta b{color:var(--text);font-weight:600}
+.blurb{color:var(--text);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.skills{display:flex;flex-wrap:wrap;gap:.5rem}
+.skill{font-size:.875rem;font-weight:500;color:var(--navy);background:var(--bg);border:1px solid var(--border);border-radius:999px;padding:.2rem .7rem}
+/* Action block: one reserved primary row + a fixed-height secondary row, so every
+   card's primary button sits on the same baseline and buttons line up across the grid
+   whether a card has one action or two. Secondary row is empty on single-action cards. */
+.actions{display:flex;flex-direction:column;gap:.5rem;margin-top:auto;padding-top:.5rem}
+.action-primary,.action-secondary{display:flex;flex-wrap:wrap;gap:.75rem;align-items:center}
+.action-secondary{min-height:40px}
+.acard.is-planned{background:#fbfcfd;border-style:dashed;box-shadow:none}
+.acard.is-planned h4{color:var(--text)}
+
+/* Status pills: color + text label, never color alone. */
+.pill{display:inline-flex;align-items:center;gap:.4rem;font-size:.875rem;font-weight:600;border-radius:999px;padding:.2rem .7rem;border:1px solid;white-space:nowrap}
+.pill::before{content:"";width:.5rem;height:.5rem;border-radius:50%;background:currentColor}
+.pill-published{color:var(--green);background:color-mix(in srgb,var(--green) 10%,#fff);border-color:color-mix(in srgb,var(--green) 35%,#fff)}
+.pill-draft{color:color-mix(in srgb,var(--gold) 72%,#000);background:color-mix(in srgb,var(--gold) 12%,#fff);border-color:color-mix(in srgb,var(--gold) 40%,#fff)}
+.pill-backlog{color:var(--muted);background:var(--bg);border-color:var(--border);border-style:dashed}
+
+/* ---------- Buttons ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.45rem;min-height:40px;padding:.5rem 1.1rem;border-radius:var(--radius-sm);font:inherit;font-weight:600;font-size:1rem;line-height:1.2;text-decoration:none;cursor:pointer;border:1px solid transparent;transition:background-color .15s,border-color .15s}
+.btn-primary{background:var(--primary);color:#fff;border-color:var(--primary)}
+.btn-primary:hover{background:var(--navy);border-color:var(--navy)}
+.btn-secondary{background:#fff;color:var(--text);border-color:var(--border)}
+.btn-secondary:hover{border-color:var(--primary);color:var(--primary)}
+.btn-lg{min-height:3.25rem;font-size:1.0625rem;width:100%}
+.btn .ext{font-size:.85em;opacity:.8}
+
+/* ---------- Gradebook card ---------- */
+.gb{padding:1.75rem;border-top:4px solid var(--primary);position:sticky;top:1.5rem}
+.gb-head{display:flex;align-items:center;justify-content:space-between;gap:1rem}
+.gb-head h2{font-size:1.5rem;font-weight:700}
+.tag{display:inline-flex;align-items:center;min-height:1.9rem;padding:0 .75rem;border-radius:999px;background:var(--primary-weak);color:var(--navy);font-weight:600;font-size:.9375rem;white-space:nowrap}
+.gb-sub{color:var(--muted);margin-top:.25rem;font-variant-numeric:tabular-nums}
+.label{font-size:.8125rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:1.5rem 0 .6rem}
+.pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:.6rem}
+.pchip{display:flex;flex-direction:column;align-items:flex-start;padding:.6rem .8rem;border:1px solid var(--border);border-radius:var(--radius-sm);text-decoration:none;color:var(--text);background:#fff}
+.pchip:hover{border-color:var(--primary);background:var(--primary-weak)}
+.pchip .p{font-size:.875rem;color:var(--muted);font-weight:500}
+.pchip .n{font-size:1.375rem;font-weight:700;color:var(--navy);font-variant-numeric:tabular-nums;line-height:1.2}
+.pchip .n small{font-size:.8125rem;font-weight:500;color:var(--muted);margin-left:.2rem}
+.wbar{display:flex;height:.75rem;border-radius:999px;overflow:hidden;background:var(--bg)}
+.wbar span{display:block;height:100%}
+.wbar span + span{border-left:2px solid #fff}
+.wlegend{display:grid;grid-template-columns:1fr 1fr;gap:.35rem 1rem;margin-top:.7rem;font-size:.9375rem}
+.wlegend li{display:flex;align-items:center;gap:.5rem}
+.wlegend i{width:.7rem;height:.7rem;border-radius:3px;flex:none}
+.wlegend b{margin-left:auto;font-variant-numeric:tabular-nums;color:var(--navy)}
+.scale{font-size:.9375rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.scale b{color:var(--navy)}
+.gb-actions{display:flex;flex-direction:column;gap:.75rem;margin-top:1.5rem}
+.w1{background:var(--navy)}.w2{background:var(--primary)}.w3{background:color-mix(in srgb,var(--primary) 55%,#fff)}.w4{background:color-mix(in srgb,var(--primary) 28%,#fff)}
+
+/* ---------- Classes at a glance ---------- */
+.glance{margin-top:2rem;padding:1.75rem}
+.tabs{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:.75rem}
+.tab{display:flex;flex-direction:column;align-items:flex-start;gap:.35rem;padding:.8rem 1rem;border:1px solid var(--border);border-radius:var(--radius-sm);background:#fff;font:inherit;color:var(--text);cursor:pointer;text-align:left}
+.tab:hover{border-color:var(--primary)}
+.tab[aria-selected="true"]{border-color:var(--primary);background:var(--primary-weak);box-shadow:inset 0 0 0 1px var(--primary)}
+.tab .p{font-weight:600;color:var(--navy)}
+.tab .n{font-size:1.5rem;font-weight:700;color:var(--navy);font-variant-numeric:tabular-nums;line-height:1.1}
+.tab .n small{font-size:.875rem;font-weight:500;color:var(--muted);margin-left:.25rem}
+.tab .bar{width:100%;height:.375rem;border-radius:999px;background:var(--bg);overflow:hidden}
+.tab .bar span{display:block;height:100%;background:var(--primary);border-radius:999px}
+.panel{margin-top:1.25rem;padding-top:1.25rem;border-top:1px solid var(--border)}
+.panel-row{display:flex;align-items:center;justify-content:space-between;gap:1.25rem;flex-wrap:wrap}
+.facts{display:flex;flex-wrap:wrap;gap:.75rem 2.5rem}
+.fact dt{font-size:.8125rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.fact dd{margin:0;font-size:1.125rem;font-weight:600;color:var(--navy);font-variant-numeric:tabular-nums}
+.panel-actions{display:flex;gap:.75rem;flex-wrap:wrap}
+.names{columns:4 13rem;column-gap:2rem;margin-top:1.25rem;counter-reset:n}
+.names li{break-inside:avoid;padding:.2rem 0;counter-increment:n;font-variant-numeric:tabular-nums}
+.names li::before{content:counter(n);display:inline-block;width:2rem;color:var(--muted);font-size:.875rem}
+.names[hidden]{display:none}
+
+/* ---------- Footer ---------- */
+footer{border-top:1px solid var(--border);background:var(--surface)}
+footer .wrap{display:flex;align-items:center;justify-content:space-between;gap:1rem 2rem;flex-wrap:wrap;padding-top:1.25rem;padding-bottom:1.25rem;color:var(--muted);font-size:.9375rem}
+footer .src{color:var(--text);font-weight:500}
+footer nav{display:flex;gap:1.25rem;flex-wrap:wrap;align-items:center}
+.linkbtn{background:none;border:0;padding:.25rem 0;font:inherit;color:var(--primary);text-decoration:underline;cursor:pointer}
+
+/* ---------- Help popover ---------- */
+.pop{position:fixed;z-index:40;width:min(26rem,calc(100vw - 2rem));background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:var(--radius);box-shadow:0 12px 40px rgba(16,36,62,.18);padding:1.25rem 1.25rem 1rem}
+.pop[hidden]{display:none}
+.pop h2{font-size:1.125rem;margin-bottom:.75rem}
+.pop ol{counter-reset:s;display:grid;gap:.7rem}
+.pop li{counter-increment:s;display:grid;grid-template-columns:1.9rem 1fr;gap:.6rem;align-items:start}
+.pop li::before{content:counter(s);display:grid;place-items:center;width:1.75rem;height:1.75rem;border-radius:50%;background:var(--primary-weak);color:var(--navy);font-weight:700;font-size:.9375rem}
+.pop li b{display:block;color:var(--navy)}
+.pop li span{color:var(--muted);font-size:.9375rem}
+.pop-foot{display:flex;justify-content:space-between;align-items:center;margin-top:1rem;padding-top:.75rem;border-top:1px solid var(--border);font-size:.9375rem}
+.pop-close{min-height:36px}
+
+.err{padding:1rem 1.25rem;border:1px solid var(--red);border-radius:var(--radius-sm);background:color-mix(in srgb,var(--red) 6%,#fff);color:var(--red);font-weight:600}
+
+/* ---------- Responsive ---------- */
+@media (max-width:1180px){
+  .layout{grid-template-columns:1fr}
+  .gb{position:static}
+  .pgrid{grid-template-columns:repeat(6,1fr)}
+}
+@media (max-width:900px){
+  .tabs{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .pgrid{grid-template-columns:repeat(3,1fr)}
+}
+@media (max-width:600px){
+  .wrap{padding:0 1rem}
+  .brand h1{font-size:1.5rem}
+  .tabs{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .cards{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
+@media print{
+  body{background:#fff}
+  .topbar{background:#fff;color:var(--text);border-bottom:2px solid var(--navy)}
+  .brand h1{color:var(--navy)} .brand .sub,.stat{color:var(--text)}
+  .help-btn,.skip,.actions,.gb-actions,.panel-actions,.pop,footer nav{display:none!important}
+  .card{box-shadow:none}
+  .gb{position:static}
+  .layout{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div style="background:#b5791a;color:#fff;font:600 15px/1.4 Inter,system-ui,sans-serif;padding:10px 16px;text-align:center">DEMO — sample data. Every student name, ID, email, counselor and inclusion flag is invented; no real student appears here. Scores show a real score distribution.</div>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="topbar">
+  <div class="wrap">
+    <div class="brand">
+      <h1>Financial Literacy</h1>
+      <p class="sub" id="hdr-sub">Mr. Manzi · North Bergen HS · 2026-2027</p>
+    </div>
+    <div class="top-meta">
+      <span class="chip-mp" id="hdr-mp" title="Current marking period">MP1</span>
+      <span class="stat" id="hdr-stat">6 classes · 123 students</span>
+      <button type="button" class="help-btn" id="help-top" aria-haspopup="dialog" aria-expanded="false" aria-controls="help-pop"><span class="q" aria-hidden="true">?</span>How it works</button>
+    </div>
+  </div>
+</header>
+
+<main id="main" tabindex="-1">
+  <div class="wrap">
+    <noscript><p class="err">Turn on JavaScript to see assignments and class lists. Gradebook: <a href="gradebook/index.html">gradebook/index.html</a></p></noscript>
+    <div class="layout">
+      <section aria-labelledby="apps-h">
+        <div class="section-head">
+          <h2 id="apps-h">Web App Assignments</h2>
+          <span class="count" id="apps-count"></span>
+        </div>
+        <div id="apps"></div>
+      </section>
+
+      <aside aria-labelledby="gb-h">
+        <section class="card gb">
+          <div class="gb-head">
+            <h2 id="gb-h">Gradebook</h2>
+            <span class="tag" id="gb-tag">MP1 · weighted</span>
+          </div>
+          <p class="gb-sub" id="gb-sub">6 classes · 123 students</p>
+
+          <p class="label" id="gb-periods-l">Periods</p>
+          <ul class="pgrid" id="gb-periods" aria-labelledby="gb-periods-l"></ul>
+
+          <p class="label" id="gb-weights-l">Category weights</p>
+          <div class="wbar" id="gb-wbar" aria-hidden="true"></div>
+          <ul class="wlegend" id="gb-wlegend" aria-labelledby="gb-weights-l"></ul>
+
+          <p class="label">Grade scale</p>
+          <p class="scale" id="gb-scale"></p>
+
+          <div class="gb-actions">
+            <a class="btn btn-primary btn-lg" href="gradebook/index.html">Open gradebook</a>
+            <a class="btn btn-secondary" id="gb-sheet" href="#" target="_blank" rel="noopener">MP1 Google Sheet <span class="ext" aria-hidden="true">↗</span><span class="sr-only">(opens in a new tab)</span></a>
+          </div>
+        </section>
+      </aside>
+    </div>
+
+    <section class="card glance" aria-labelledby="glance-h">
+      <div class="section-head">
+        <h2 id="glance-h">Classes at a glance</h2>
+        <span class="count" id="glance-count">6 classes · 123 students</span>
+      </div>
+      <div class="tabs" role="tablist" aria-label="Class periods" id="glance-tabs"></div>
+      <div class="panel" role="tabpanel" id="glance-panel" aria-live="polite"></div>
+    </section>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p class="src">Rosters: PowerSchool export Oct 14, 2026 · Bank fees checked Nov 2026</p>
+    <nav aria-label="Hub files">
+      <span>Last built <time datetime="2026-11-21">Nov 21, 2026</time></span>
+      <a href="README.md">README</a>
+      <a href="data/roster.json">roster.json</a>
+      <a href="data/assignments.json">assignments.json</a>
+      <button type="button" class="linkbtn" id="help-foot" aria-haspopup="dialog" aria-expanded="false" aria-controls="help-pop">How it works</button>
+    </nav>
+  </div>
+</footer>
+
+<div class="pop" id="help-pop" role="dialog" aria-labelledby="help-h" hidden>
+  <h2 id="help-h">How it works</h2>
+  <ol>
+    <li><div><b>Open the web app</b><span>Post the link in Google Classroom.</span></div></li>
+    <li><div><b>Students complete it</b><span>Numbers check themselves; written answers wait for your review.</span></div></li>
+    <li><div><b>Paste results into the Google Doc</b><span>Copy the results code into the yellow boxes, then Turn in.</span></div></li>
+    <li><div><b>Record submissions in the gradebook</b><span>Import results → review → record. Each cell lands as <b>P</b> (pending review); type the grade over it.</span></div></li>
+  </ol>
+  <div class="pop-foot">
+    <p><b>Publishing:</b> post only the web app link to students. The hub, the gradebook and the roster data are teacher-only.</p>
+    <a href="README.md">Full guide (README)</a>
+    <button type="button" class="btn btn-secondary pop-close" id="help-close">Close</button>
+  </div>
+</div>
+
+<script type="application/json" id="assignments-data">
+{"_doc":"Single source of truth for the Financial Literacy hub. Both index.html (hub) and gradebook/ read this. Regenerated by hand/tooling — do not hand-edit in the browser.","course":{"name":"Financial Literacy","courseId":"H0512","school":"North Bergen High School / NJSJHS","schoolYear":"2026-2027","teacher":"Mr. Manzi","teacherEmail":"teacher@example.org","platform":"Google Classroom (students submit Google Docs)","markingPeriod":"MP1","studentDevices":"Chromebooks, Google Workspace for Education accounts"},"sourceRefs":{"rosterJson":"data/roster.json","rawRosterFolder":"Class Rosters 2026-2027 SY / Student roster for fall 2026 (PowerSchool CSV exports)","liveGradebookSheet":"#","mp1RawExport":"_source/sheet_mp1.json","driveFolderFinancialLiteracy":"1ptafl3mstTytC2aydwdbi9v6OXi-NDh3"},"weights":[{"id":"tests","name":"Tests \u0026 Projects","weight":35},{"id":"participation","name":"Participation","weight":25},{"id":"classwork","name":"Classwork","weight":25},{"id":"homework","name":"Homework","weight":15},{"id":"extracredit","name":"Extra Credit","weight":0,"note":"Scores count as Classwork points; blank = excused (not 0); 0 = missing work, same rule as the live sheet."}],"gradeScale":[{"min":90,"letter":"A"},{"min":80,"letter":"B"},{"min":70,"letter":"C"},{"min":65,"letter":"D"},{"min":0,"letter":"F"}],"units":[{"id":"u0","name":"Unit 0: Start Here"},{"id":"u1","name":"Unit 1: Job Apps/Resumes"},{"id":"u2","name":"Unit 2: Paychecks/Taxes"},{"id":"u3","name":"Unit 3: Money and Me"},{"id":"u4","name":"Unit 4: Banking"},{"id":"u5","name":"Unit 5: Credit"},{"id":"u6","name":"Unit 6: Investing"},{"id":"final","name":"Final Exam"}],"assignments":[{"id":"checking-fees","code":"CW9","title":"Checking Account Fees at Real Banks","unit":"u4","category":"classwork","points":100,"type":"webapp","status":"published","blurb":"Compare the real fee schedules of Chase Total Checking, Bank of America Advantage Plus Banking, and TD Bank Convenience Checking, then work out what three students actually pay in a month.","skills":["Fee schedules","Direct deposit waivers","ATM + overdraft fees","Annualized cost"],"appPath":"apps/checking-fees/index.html","studentDocUrl":"#","studentDocId":"1uQMGSQGVubQP0GjFKqc8e5lIpl2c5K1rdR6mtFl4hQA","docModified":"2026-11-20","docVersion":"master (Parts 1-4, 4 tables of yellow answer boxes)","answerKeyUrl":"#","sourceText":"_source/assignment_master.txt","sources":"Fee schedules published by Chase, Bank of America and TD Bank; CFPB Bank Accounts guide. Fees checked November 2026."},{"id":"banking-lab","code":"CW9b","title":"Checking Account Lab (Chase, TD, Ally) – Maya \u0026 Sam","unit":"u4","category":"classwork","points":100,"type":"doc","status":"backlog","blurb":"12-question partner lab on waiver rules, ATM surcharges and what happens when a bank pays a bill into a negative balance. Planned as web app #2.","studentDocUrl":"#","studentDocId":"1VT4f_ZZKg-dAXTjBJea9ntAF_tn4d0cHnYEQsRwpxHM","docModified":"2026-11-19"}],"assignmentColumnsFromLiveSheet":["Extra Credit 1: Avg American Savings (/100)","SGO Part: Participation in the SGO (/100)","AS1: Participation in the SGO (/100)","CW1: Intro to Job apps (/100)","CW2: Mock Job Application (/100)","HW1: Resume Analysis, must haves (/100)","AS1: Test on job apps and resumes (/100)","AS2: Test on job apps and resumes (/100)","CW3: Business Math Exercises (/100)","HW2: Example paystub 1 (/100)","CW4: Example paystub 2 (/100)","AS2 (/100)","AS3 (/100)","CW5: Prebudget scenario assignment (/100)","CW6: The Bean Game (/100)","AS4: Budget Project (/100)","CW7: 5 Saving Tricks Doc (/100)","HW3: 7 Reasons to Save (/100)","CW8: CD Comparison (/100)","CP1: Class Participation (/100)"]}
+</script>
+<script type="application/json" id="roster-data">
+{"generated":"2026-11-21T19:40:21+00:00","source":"PowerSchool class-list exports in Google Drive (work account teacher@example.org)","sourceFolder":"Class Rosters 2026-2027 SY / Student roster for fall 2026","schoolYear":"2026-2027","course":"Financial Literacy H0512","classes":[{"id":"pd2","period":"2","label":"Period 2","course":"Financial Literacy (H0512)","studentCount":24,"missingEmail":24,"students":[{"id":"90000001","first":"Ursa","last":"Vellmore","name":"Vellmore, Ursa","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000002","first":"Hart","last":"Larchmont","name":"Larchmont, Hart","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000003","first":"Hart","last":"Bellhaven","name":"Bellhaven, Hart","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000004","first":"Reese","last":"Brightwater","name":"Brightwater, Reese","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000005","first":"Gray","last":"Uplands","name":"Uplands, Gray","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000006","first":"Ysolde","last":"Birchwood","name":"Birchwood, Ysolde","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000007","first":"Dara","last":"Thornbury","name":"Thornbury, Dara","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000008","first":"Ira","last":"Verbena","name":"Verbena, Ira","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000009","first":"Glenn","last":"Cedarhill","name":"Cedarhill, Glenn","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000010","first":"Quilla","last":"Bramble","name":"Bramble, Quilla","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000011","first":"Kira","last":"Thornbury","name":"Thornbury, Kira","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000012","first":"Hart","last":"Jessup","name":"Jessup, Hart","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000013","first":"Kira","last":"Cloudcroft","name":"Cloudcroft, Kira","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000014","first":"Zia","last":"Zenith","name":"Zenith, Zia","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000015","first":"Bree","last":"Cloudcroft","name":"Cloudcroft, Bree","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000016","first":"Hart","last":"Iversen","name":"Iversen, Hart","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000017","first":"Hart","last":"Stonebury","name":"Stonebury, Hart","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000018","first":"Wiley","last":"Kestrel","name":"Kestrel, Wiley","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000019","first":"Cove","last":"Valemont","name":"Valemont, Cove","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000020","first":"Mica","last":"Cranfield","name":"Cranfield, Mica","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000021","first":"Kai","last":"Highfield","name":"Highfield, Kai","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000022","first":"Frankie","last":"Zenith","name":"Zenith, Frankie","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000023","first":"Elm","last":"Yewdale","name":"Yewdale, Elm","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000024","first":"Glenn","last":"Radcliffe","name":"Radcliffe, Glenn","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false}]},{"id":"pd3","period":"3","label":"Period 3","course":"Financial Literacy (H0512)","studentCount":21,"missingEmail":21,"students":[{"id":"90000025","first":"Mica","last":"Sandringham","name":"Sandringham, Mica","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000026","first":"Bay","last":"Foxglove","name":"Foxglove, Bay","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000027","first":"Haven","last":"Sandringham","name":"Sandringham, Haven","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000028","first":"Esme","last":"Zealand","name":"Zealand, Esme","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000029","first":"Ysolde","last":"Willoughby","name":"Willoughby, Ysolde","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000030","first":"Vale","last":"Eastvale","name":"Eastvale, Vale","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000031","first":"Frankie","last":"Langmere","name":"Langmere, Frankie","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000032","first":"Vale","last":"Jessup","name":"Jessup, Vale","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000033","first":"Jory","last":"Umberley","name":"Umberley, Jory","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000034","first":"Nico","last":"Cobblewood","name":"Cobblewood, Nico","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000035","first":"Wren","last":"Umberley","name":"Umberley, Wren","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000036","first":"Cleo","last":"Larchmont","name":"Larchmont, Cleo","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000037","first":"Lark","last":"Ashford","name":"Ashford, Lark","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000038","first":"Gale","last":"Quill","name":"Quill, Gale","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000039","first":"Cleo","last":"Ashford","name":"Ashford, Cleo","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000040","first":"Yara","last":"Netherby","name":"Netherby, Yara","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000041","first":"Wynn","last":"Elderbrook","name":"Elderbrook, Wynn","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000042","first":"Misha","last":"Quill","name":"Quill, Misha","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000043","first":"Orin","last":"Foxglove","name":"Foxglove, Orin","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000044","first":"Xan","last":"Quill","name":"Quill, Xan","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000045","first":"Hollis","last":"Northgate","name":"Northgate, Hollis","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false}]},{"id":"pd5","period":"5","label":"Period 5","course":"Financial Literacy (H0512)","studentCount":20,"missingEmail":20,"students":[{"id":"90000046","first":"Uma","last":"Ironwood","name":"Ironwood, Uma","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000047","first":"Iris","last":"Cedarhill","name":"Cedarhill, Iris","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000048","first":"Ira","last":"Primrose","name":"Primrose, Ira","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000049","first":"Devon","last":"Radcliffe","name":"Radcliffe, Devon","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000050","first":"Kaia","last":"Netherby","name":"Netherby, Kaia","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000051","first":"Perry","last":"Yewdale","name":"Yewdale, Perry","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000052","first":"Ellis","last":"Jessup","name":"Jessup, Ellis","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000053","first":"Frankie","last":"Everest","name":"Everest, Frankie","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000054","first":"Arden","last":"Cedarhill","name":"Cedarhill, Arden","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000055","first":"Blythe","last":"Zenobia","name":"Zenobia, Blythe","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000056","first":"Ursa","last":"Rosemont","name":"Rosemont, Ursa","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000057","first":"Tatum","last":"Overton","name":"Overton, Tatum","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000058","first":"Kai","last":"Dawnley","name":"Dawnley, Kai","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000059","first":"Ewan","last":"Cloudcroft","name":"Cloudcroft, Ewan","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000060","first":"Casey","last":"Uplands","name":"Uplands, Casey","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000061","first":"Ursa","last":"Larkspur","name":"Larkspur, Ursa","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000062","first":"Levi","last":"Kingsley","name":"Kingsley, Levi","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000063","first":"Bree","last":"Elderbrook","name":"Elderbrook, Bree","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000064","first":"Rain","last":"Mayfair","name":"Mayfair, Rain","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000065","first":"Pippa","last":"Rushmere","name":"Rushmere, Pippa","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false}]},{"id":"pd6","period":"6","label":"Period 6","course":"Financial Literacy (H0512)","studentCount":29,"missingEmail":29,"students":[{"id":"90000066","first":"Zora","last":"Halloway","name":"Halloway, Zora","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000067","first":"Joss","last":"Alderney","name":"Alderney, Joss","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000068","first":"Della","last":"Harrowgate","name":"Harrowgate, Della","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000069","first":"Yara","last":"Juniper","name":"Juniper, Yara","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000070","first":"Wynn","last":"Yarrow","name":"Yarrow, Wynn","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000071","first":"Tess","last":"Valemont","name":"Valemont, Tess","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000072","first":"Devon","last":"Calloway","name":"Calloway, Devon","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000073","first":"Calder","last":"Pinehurst","name":"Pinehurst, Calder","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000074","first":"Sasha","last":"Cedarhill","name":"Cedarhill, Sasha","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000075","first":"Jonah","last":"Dunmore","name":"Dunmore, Jonah","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000076","first":"Orin","last":"Mayfair","name":"Mayfair, Orin","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000077","first":"Elm","last":"Mossbrook","name":"Mossbrook, Elm","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000078","first":"Blythe","last":"Jessup","name":"Jessup, Blythe","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000079","first":"Xan","last":"Mayfair","name":"Mayfair, Xan","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000080","first":"Ansel","last":"Birchwood","name":"Birchwood, Ansel","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000081","first":"Arden","last":"Langmere","name":"Langmere, Arden","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000082","first":"Gale","last":"Underhill","name":"Underhill, Gale","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000083","first":"Pax","last":"Thistlewood","name":"Thistlewood, Pax","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000084","first":"Yara","last":"Vesper","name":"Vesper, Yara","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000085","first":"Otis","last":"Alderney","name":"Alderney, Otis","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000086","first":"Zane","last":"Bellhaven","name":"Bellhaven, Zane","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000087","first":"Misha","last":"Mayfair","name":"Mayfair, Misha","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000088","first":"Lane","last":"Valemont","name":"Valemont, Lane","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000089","first":"Zephyr","last":"Dawnley","name":"Dawnley, Zephyr","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000090","first":"Marley","last":"Jasper","name":"Jasper, Marley","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000091","first":"Oakley","last":"Silverpine","name":"Silverpine, Oakley","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000092","first":"Avery","last":"Calloway","name":"Calloway, Avery","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000093","first":"Joss","last":"Amberley","name":"Amberley, Joss","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000094","first":"Remy","last":"Eastvale","name":"Eastvale, Remy","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false}]},{"id":"pd7","period":"7","label":"Period 7","course":"Financial Literacy (H0512)","studentCount":13,"missingEmail":13,"students":[{"id":"90000095","first":"Quilla","last":"Bellhaven","name":"Bellhaven, Quilla","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000096","first":"Bay","last":"Fairburn","name":"Fairburn, Bay","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000097","first":"Maren","last":"Eastvale","name":"Eastvale, Maren","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000098","first":"Xan","last":"Cloudcroft","name":"Cloudcroft, Xan","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000099","first":"Frankie","last":"Brightwater","name":"Brightwater, Frankie","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000100","first":"Reese","last":"Netherby","name":"Netherby, Reese","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000101","first":"Sable","last":"Amberley","name":"Amberley, Sable","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000102","first":"Lennon","last":"Meadowbrook","name":"Meadowbrook, Lennon","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000103","first":"Mica","last":"Mayfair","name":"Mayfair, Mica","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000104","first":"Tatum","last":"Pemberton","name":"Pemberton, Tatum","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000105","first":"Wren","last":"Sablewood","name":"Sablewood, Wren","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000106","first":"Quilla","last":"Greystone","name":"Greystone, Quilla","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000107","first":"Wren","last":"Ellsworth","name":"Ellsworth, Wren","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false}]},{"id":"pd10","period":"10","label":"Period 10","course":"Financial Literacy (H0512)","studentCount":16,"missingEmail":16,"students":[{"id":"90000108","first":"Harper","last":"Ashford","name":"Ashford, Harper","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000109","first":"Denver","last":"Eastvale","name":"Eastvale, Denver","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000110","first":"Sol","last":"Yarrow","name":"Yarrow, Sol","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000111","first":"Della","last":"Verbena","name":"Verbena, Della","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000112","first":"Mica","last":"Calloway","name":"Calloway, Mica","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000113","first":"Glenn","last":"Kirkwood","name":"Kirkwood, Glenn","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000114","first":"Uri","last":"Sandringham","name":"Sandringham, Uri","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000115","first":"Wiley","last":"Ravensdale","name":"Ravensdale, Wiley","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000116","first":"Yara","last":"Alderney","name":"Alderney, Yara","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000117","first":"Kit","last":"Pemberton","name":"Pemberton, Kit","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000118","first":"Ysolde","last":"Zenith","name":"Zenith, Ysolde","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000119","first":"Kira","last":"Juniper","name":"Juniper, Kira","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000120","first":"Remy","last":"Nightjar","name":"Nightjar, Remy","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000121","first":"Ursa","last":"Uplands","name":"Uplands, Ursa","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000122","first":"Foxtail","last":"Halloway","name":"Halloway, Foxtail","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false},{"id":"90000123","first":"Yuki","last":"Tiverton","name":"Tiverton, Yuki","email":"","grade":"09","homeroom":"","counselor":"","inclusion":false}]}],"totals":{"classes":6,"students":123,"seats":123},"_demo":"SAMPLE DATA — every name, ID, email and counselor is invented."}
+</script>
+<script>
+(function () {
+  'use strict';
+
+  function readJSON(id) {
+    var el = document.getElementById(id);
+    if (!el) return null;
+    try { return JSON.parse(el.textContent); } catch (e) { return null; }
+  }
+
+  // Tiny DOM builder: text is always set via textContent (no innerHTML with data).
+  function h(tag, attrs, kids) {
+    var el = document.createElement(tag);
+    if (attrs) {
+      Object.keys(attrs).forEach(function (k) {
+        var v = attrs[k];
+        if (v === null || v === undefined || v === false) return;
+        if (k === 'class') el.className = v;
+        else if (k === 'text') el.textContent = v;
+        else el.setAttribute(k, v === true ? '' : String(v));
+      });
+    }
+    (kids || []).forEach(function (c) {
+      if (c === null || c === undefined || c === false) return;
+      el.appendChild(typeof c === 'string' ? document.createTextNode(c) : c);
+    });
+    return el;
+  }
+  function $(id) { return document.getElementById(id); }
+  function plural(n, one, many) { return n + ' ' + (n === 1 ? one : many); }
+
+  // Only allow relative, in-project paths and Google Docs/Sheets URLs as hrefs.
+  function safeRel(p) {
+    return (typeof p === 'string' && /^[A-Za-z0-9_\-]+(\/[A-Za-z0-9_.\-]+)*$/.test(p) && p.indexOf('..') < 0) ? p : null;
+  }
+  function safeGoogle(u) {
+    return (typeof u === 'string' && /^https:\/\/docs\.google\.com\//.test(u)) ? u : null;
+  }
+  function extLink(cls, href, label) {
+    return h('a', { 'class': cls, href: href, target: '_blank', rel: 'noopener' }, [
+      label + ' ',
+      h('span', { 'class': 'ext', 'aria-hidden': 'true', text: '↗' }),
+      h('span', { 'class': 'sr-only', text: '(opens in a new tab)' })
+    ]);
+  }
+
+  var A = readJSON('assignments-data') || {};
+  var R = readJSON('roster-data') || {};
+  var course = A.course || {};
+  var classes = Array.isArray(R.classes) ? R.classes : [];
+
+  function countOf(c) { return Array.isArray(c.students) ? c.students.length : (c.studentCount || 0); }
+  var totalStudents = classes.reduce(function (s, c) { return s + countOf(c); }, 0);
+  var statText = plural(classes.length, 'class', 'classes') + ' · ' + plural(totalStudents, 'student', 'students');
+
+  /* ---------- Header ---------- */
+  function renderHeader() {
+    var school = (course.school || '').indexOf('North Bergen') === 0 ? 'North Bergen HS' : (course.school || '');
+    $('hdr-sub').textContent = [course.teacher || 'Mr. Manzi', school || 'North Bergen HS', course.schoolYear || R.schoolYear || '2026-2027'].join(' · ');
+    if (course.markingPeriod) {
+      $('hdr-mp').textContent = course.markingPeriod;
+      $('gb-tag').textContent = course.markingPeriod + ' · weighted';
+    }
+    if (classes.length) {
+      $('hdr-stat').textContent = statText;
+      $('gb-sub').textContent = statText;
+      $('glance-count').textContent = statText;
+    }
+  }
+
+  /* ---------- Web App Assignments ---------- */
+  var STATUS = {
+    published: { label: 'Published', cls: 'pill-published' },
+    draft: { label: 'Draft', cls: 'pill-draft' },
+    backlog: { label: 'Planned', cls: 'pill-backlog' }
+  };
+  var CATEGORY = {};
+  (A.weights || []).forEach(function (w) { CATEGORY[w.id] = w.name; });
+
+  function assignmentCard(a, unitName) {
+    var st = STATUS[a.status] || { label: a.status || 'Unknown', cls: 'pill-backlog' };
+    var planned = a.status === 'backlog';
+    var app = a.type === 'webapp' ? safeRel(a.appPath) : null;
+    var doc = safeGoogle(a.studentDocUrl);
+    var titleId = 'a-' + String(a.id || '').replace(/[^A-Za-z0-9_-]/g, '');
+
+    var meta = [];
+    if (unitName) meta.push(unitName);
+    if (CATEGORY[a.category]) meta.push(CATEGORY[a.category]);
+    var metaEl = h('p', { 'class': 'meta' }, [
+      meta.join(' · ') + (meta.length ? ' · ' : ''),
+      h('b', { text: (a.points != null ? a.points : '—') + ' pts' })
+    ]);
+
+    // Same action-row structure on every card: the single primary action lives in
+    // .action-primary (row 1) and any secondary links in .action-secondary (row 2).
+    // Cards without a secondary link keep an empty, fixed-height row so all cards
+    // stay the same height and their primary buttons share one baseline.
+    var primary = null, secondary = [];
+    if (app && !planned) {
+      primary = h('a', { 'class': 'btn btn-primary', href: app, text: 'Open web app' });
+      if (doc) secondary.push(extLink('btn btn-secondary', doc, 'Google Doc'));
+    } else if (doc) {
+      primary = extLink(planned ? 'btn btn-secondary' : 'btn btn-primary', doc, 'View Google Doc');
+    }
+    var actionBlock = (primary || secondary.length)
+      ? h('div', { 'class': 'actions' }, [
+          h('div', { 'class': 'action-primary' }, primary ? [primary] : []),
+          h('div', { 'class': 'action-secondary' }, secondary)
+        ])
+      : null;
+
+    var skills = Array.isArray(a.skills) && a.skills.length
+      ? h('ul', { 'class': 'skills', 'aria-label': 'Skills' }, a.skills.map(function (s) { return h('li', { 'class': 'skill', text: s }); }))
+      : null;
+
+    return h('article', { 'class': 'card acard' + (planned ? ' is-planned' : ''), 'aria-labelledby': titleId }, [
+      h('div', { 'class': 'acard-top' }, [
+        h('span', { 'class': 'code', text: a.code || '' }),
+        h('span', { 'class': 'pill ' + st.cls }, [h('span', { 'class': 'sr-only', text: 'Status: ' }), st.label])
+      ]),
+      h('h4', { id: titleId, text: a.title || 'Untitled' }),
+      metaEl,
+      a.blurb ? h('p', { 'class': 'blurb', title: a.blurb, text: a.blurb }) : null,
+      skills,
+      actionBlock
+    ]);
+  }
+
+  function renderAssignments() {
+    var list = Array.isArray(A.assignments) ? A.assignments : [];
+    var host = $('apps');
+    var units = Array.isArray(A.units) ? A.units.slice() : [];
+    var byUnit = {};
+    list.forEach(function (a) { (byUnit[a.unit] = byUnit[a.unit] || []).push(a); });
+    // Units with no entry in units[] still render, after the known ones.
+    Object.keys(byUnit).forEach(function (u) {
+      if (!units.some(function (x) { return x.id === u; })) units.push({ id: u, name: u });
+    });
+    units.forEach(function (u) {
+      var items = byUnit[u.id];
+      if (!items || !items.length) return;
+      var hid = 'unit-' + String(u.id).replace(/[^A-Za-z0-9_-]/g, '');
+      host.appendChild(h('section', { 'class': 'unit', 'aria-labelledby': hid }, [
+        h('h3', { id: hid, text: u.name }),
+        h('div', { 'class': 'cards' }, items.map(function (a) { return assignmentCard(a, u.name); }))
+      ]));
+    });
+    var live = list.filter(function (a) { return a.status === 'published'; }).length;
+    var planned = list.filter(function (a) { return a.status === 'backlog'; }).length;
+    $('apps-count').textContent = [live + ' live', planned ? planned + ' planned' : null].filter(Boolean).join(' · ');
+    if (!list.length) host.appendChild(h('p', { 'class': 'meta', text: 'No assignments in data/assignments.json.' }));
+  }
+
+  /* ---------- Gradebook card ---------- */
+  function renderGradebook() {
+    var ul = $('gb-periods');
+    classes.forEach(function (c) {
+      var n = countOf(c);
+      ul.appendChild(h('li', null, [
+        h('a', { 'class': 'pchip', href: 'gradebook/index.html#' + safeRel(c.id), 'aria-label': (c.label || 'Period ' + c.period) + ', ' + plural(n, 'student', 'students') + ', open in gradebook' }, [
+          h('span', { 'class': 'p', text: c.label || 'Period ' + c.period }),
+          h('span', { 'class': 'n' }, [String(n), h('small', { text: 'students' })])
+        ])
+      ]));
+    });
+
+    var weights = (A.weights || []).filter(function (w) { return w.weight > 0; });
+    var bar = $('gb-wbar'), legend = $('gb-wlegend');
+    weights.forEach(function (w, i) {
+      var cls = 'w' + Math.min(i + 1, 4);
+      bar.appendChild(h('span', { 'class': cls, style: 'width:' + Number(w.weight) + '%' }));
+      legend.appendChild(h('li', null, [h('i', { 'class': cls, 'aria-hidden': 'true' }), w.name, h('b', { text: w.weight + '%' })]));
+    });
+
+    var scale = (A.gradeScale || []).slice().sort(function (a, b) { return b.min - a.min; });
+    var sc = $('gb-scale');
+    scale.forEach(function (g, i) {
+      if (i) sc.appendChild(document.createTextNode(' · '));
+      sc.appendChild(h('b', { text: g.letter }));
+      var prev = scale[i - 1];
+      sc.appendChild(document.createTextNode(g.min > 0 ? ' ≥' + g.min : ' <' + (prev ? prev.min : 65)));
+    });
+
+    var sheet = safeGoogle(A.sourceRefs && A.sourceRefs.liveGradebookSheet);
+    if (sheet) $('gb-sheet').setAttribute('href', sheet);
+  }
+
+  /* ---------- Classes at a glance ---------- */
+  var namesOpen = false;
+  function renderGlance() {
+    var tabs = $('glance-tabs');
+    var max = classes.reduce(function (m, c) { return Math.max(m, countOf(c)); }, 1);
+    classes.forEach(function (c, i) {
+      var n = countOf(c);
+      tabs.appendChild(h('button', {
+        type: 'button', role: 'tab', 'class': 'tab', id: 'tab-' + c.id,
+        'aria-controls': 'glance-panel', 'aria-selected': i === 0 ? 'true' : 'false', tabindex: i === 0 ? '0' : '-1',
+        'data-i': i
+      }, [
+        h('span', { 'class': 'p', text: c.label || 'Period ' + c.period }),
+        h('span', { 'class': 'n' }, [String(n), h('small', { text: 'students' })]),
+        h('span', { 'class': 'bar', 'aria-hidden': 'true' }, [h('span', { style: 'width:' + Math.round(n / max * 100) + '%' })])
+      ]));
+    });
+    tabs.addEventListener('click', function (e) {
+      var t = e.target.closest('[role="tab"]');
+      if (t) select(Number(t.getAttribute('data-i')), false);
+    });
+    tabs.addEventListener('keydown', function (e) {
+      var cur = Number(document.activeElement && document.activeElement.getAttribute('data-i'));
+      if (isNaN(cur)) return;
+      var next = null, last = classes.length - 1;
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') next = cur === last ? 0 : cur + 1;
+      else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') next = cur === 0 ? last : cur - 1;
+      else if (e.key === 'Home') next = 0;
+      else if (e.key === 'End') next = last;
+      if (next !== null) { e.preventDefault(); select(next, true); }
+    });
+    if (classes.length) select(0, false);
+  }
+
+  function select(i, focus) {
+    var c = classes[i];
+    if (!c) return;
+    Array.prototype.forEach.call(document.querySelectorAll('#glance-tabs [role="tab"]'), function (t, j) {
+      t.setAttribute('aria-selected', j === i ? 'true' : 'false');
+      t.setAttribute('tabindex', j === i ? '0' : '-1');
+      if (j === i && focus) t.focus();
+    });
+    var panel = $('glance-panel');
+    panel.setAttribute('aria-labelledby', 'tab-' + c.id);
+    panel.textContent = '';
+
+    var st = Array.isArray(c.students) ? c.students : [];
+    var couns = {};
+    st.forEach(function (s) { if (s.counselor) couns[s.counselor] = (couns[s.counselor] || 0) + 1; });
+    var counsText = Object.keys(couns).sort().map(function (k) { return k + ' ' + couns[k]; }).join(' · ') || '—';
+    var withEmail = st.filter(function (s) { return s.email; }).length;
+    var incl = st.filter(function (s) { return s.inclusion; }).length;
+
+    function fact(label, value) { return h('div', { 'class': 'fact' }, [h('dt', { text: label }), h('dd', { text: value })]); }
+
+    var namesId = 'names-' + c.id;
+    var toggle = h('button', { type: 'button', 'class': 'btn btn-secondary', 'aria-expanded': namesOpen ? 'true' : 'false', 'aria-controls': namesId, text: namesOpen ? 'Hide names' : 'Show names' });
+    var names = h('ol', { 'class': 'names', id: namesId, 'aria-label': (c.label || 'Period ' + c.period) + ' students', hidden: !namesOpen },
+      st.slice().sort(function (a, b) { return String(a.name).localeCompare(String(b.name)); })
+        .map(function (s) { return h('li', { text: [s.first, s.last].filter(Boolean).join(' ') || s.name }); }));
+    toggle.addEventListener('click', function () {
+      namesOpen = !namesOpen;
+      names.hidden = !namesOpen;
+      toggle.setAttribute('aria-expanded', namesOpen ? 'true' : 'false');
+      toggle.textContent = namesOpen ? 'Hide names' : 'Show names';
+    });
+
+    panel.appendChild(h('div', { 'class': 'panel-row' }, [
+      h('dl', { 'class': 'facts' }, [
+        fact('Period', String(c.period)),
+        fact('Students', String(st.length)),
+        fact('Counselors', counsText),
+        fact('Inclusion', String(incl)),
+        fact('School email', withEmail + ' / ' + st.length)
+      ]),
+      h('div', { 'class': 'panel-actions' }, [
+        toggle,
+        h('a', { 'class': 'btn btn-primary', href: 'gradebook/index.html#' + safeRel(c.id), text: 'Open in gradebook' })
+      ])
+    ]));
+    panel.appendChild(names);
+  }
+
+  /* ---------- Help popover ---------- */
+  function initHelp() {
+    var pop = $('help-pop'), opener = null;
+    var triggers = [$('help-top'), $('help-foot')];
+    function place(btn) {
+      var r = btn.getBoundingClientRect(), pw = pop.offsetWidth, ph = pop.offsetHeight, m = 16;
+      var left = Math.min(Math.max(m, r.right - pw), window.innerWidth - pw - m);
+      var top = r.bottom + 8;
+      if (top + ph > window.innerHeight - m) top = Math.max(m, r.top - ph - 8);
+      pop.style.left = left + 'px';
+      pop.style.top = top + 'px';
+    }
+    function open(btn) {
+      opener = btn;
+      pop.hidden = false;
+      place(btn);
+      triggers.forEach(function (t) { t.setAttribute('aria-expanded', t === btn ? 'true' : 'false'); });
+      $('help-close').focus();
+    }
+    function close(restore) {
+      if (pop.hidden) return;
+      pop.hidden = true;
+      triggers.forEach(function (t) { t.setAttribute('aria-expanded', 'false'); });
+      if (restore && opener) opener.focus();
+    }
+    triggers.forEach(function (t) {
+      t.addEventListener('click', function (e) {
+        e.stopPropagation();
+        if (!pop.hidden && opener === t) close(true); else open(t);
+      });
+    });
+    $('help-close').addEventListener('click', function () { close(true); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(true); });
+    document.addEventListener('click', function (e) { if (!pop.hidden && !pop.contains(e.target)) close(false); });
+    pop.addEventListener('focusout', function (e) {
+      if (e.relatedTarget && !pop.contains(e.relatedTarget) && triggers.indexOf(e.relatedTarget) < 0) close(false);
+    });
+    window.addEventListener('resize', function () { if (!pop.hidden && opener) place(opener); });
+    window.addEventListener('scroll', function () { if (!pop.hidden && opener) place(opener); }, { passive: true });
+  }
+
+  // Each block is isolated so one bad record can never blank the whole page.
+  [renderHeader, renderAssignments, renderGradebook, renderGlance, initHelp].forEach(function (fn) {
+    try { fn(); } catch (err) {
+      if (window.console) console.error('Hub: ' + fn.name + ' failed', err);
+    }
+  });
+})();
+</script>
+</body>
+</html>
