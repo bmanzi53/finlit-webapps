@@ -94,7 +94,7 @@ html{scroll-padding-top:var(--part-nav-clearance,4rem)}
 </details>
 <section class="card" aria-labelledby="direction-title">
 <h2 id="direction-title">Directions</h2>
-<p>Study the fee schedule and the worked example. Then complete Parts 1 to 4. Click inside a yellow box to type your answer, and show your math. You may use a calculator.</p>
+<p>Study the fee schedule and the worked example. Then complete Parts 1 to 4. Type your answers in the boxes under each question, and show your math where there is a separate work box. You may use a calculator.</p>
 <p class="muted small">Use the labeled fields to check facts and amounts. Write complete sentences where a written answer is requested; your teacher will review those responses. Show your math where there is a separate work box.</p>
 <form id="student" class="student-fields" aria-label="Student details" autocomplete="off">
 <div><label for="student-name">Student name</label><input id="student-name" name="name" autocomplete="off" required maxlength="120"></div>
@@ -106,7 +106,7 @@ html{scroll-padding-top:var(--part-nav-clearance,4rem)}
 <div class="actions"><button id="save-work" type="button" aria-controls="save-panel" aria-expanded="false">Save my work</button><button id="restore-work" type="button" class="secondary" aria-controls="restore-panel" aria-expanded="false">Restore my work</button></div>
 <div id="save-panel" hidden>
 <label for="draft-code">Draft code (not the results code)</label><textarea id="draft-code" class="code" rows="3" readonly spellcheck="false" aria-describedby="draft-code-help"></textarea>
-<p id="draft-code-help" class="small">Copy and paste this code into your Google Doc or anywhere you can get it back.</p>
+<p id="draft-code-help" class="small">Keep this code somewhere you can get it back — your notes, your email, or the assignment’s private comment — then use Restore my work on any Chromebook.</p>
 <button id="copy-draft" type="button" class="secondary">Copy draft code</button>
 </div>
 <div id="restore-panel" hidden>
@@ -130,7 +130,7 @@ html{scroll-padding-top:var(--part-nav-clearance,4rem)}
 <div id="parts"></div>
 <section class="card" aria-labelledby="results-heading">
 <h2 id="results-heading">Results</h2>
-<p>Complete each answer and any “Show your math” box, then create your results. Paste each response into its matching yellow box in the Google Doc. Include the results code if your teacher asks for it.</p>
+<p>Complete each answer and any “Show your math” box, then create your results. Press <strong>Print / Save as PDF</strong> and attach that PDF to the assignment in Google Classroom.</p>
 <div class="actions"><button id="finish" type="submit" form="student">Create results</button><button id="print" type="button" class="secondary">Print / Save as PDF</button><button id="reset" type="button" class="secondary">Reset</button><button id="clear-device" type="button" class="secondary" aria-describedby="clear-device-help">Clear this device</button><button id="save-work-results" type="button" class="secondary" aria-controls="save-panel">Save my work</button></div>
 <p id="clear-device-help" class="small muted">After you turn in your work, use Clear this device to remove your saved name, period, and answers from this browser.</p>
 <p id="results-status" role="status" class="small"></p>
@@ -146,8 +146,8 @@ html{scroll-padding-top:var(--part-nav-clearance,4rem)}
 </div>
 <noscript><p class="card">Turn on JavaScript in your browser to use the interactive worksheet.</p></noscript>
 </main>
-<footer class="wrap muted small"><p><strong>Finished? Copy your results and turn them in on Google Classroom.</strong></p><p>You can work offline once this page is open.</p><p>Chromebook sign-out erases this session’s autosave. Before closing the lid, use Save my work and keep the code; Restore my work brings it back on any device.</p><p>Reference: Consumer Financial Protection Bureau, Bank Accounts. The students in the scenarios are made up, but the bank fees come from each bank's published fee guides (checked November 2026). Fees change often, so check a bank's current schedule before you open an account.</p></footer>
-<section id="printView" aria-label="Printable results"><pre id="print-text"></pre><p class="code" id="print-code"></p></section>
+<footer class="wrap muted small"><p><strong>Finished? Press Print / Save as PDF, then attach the PDF to the assignment in Google Classroom.</strong></p><p>You can work offline once this page is open.</p><p>Chromebook sign-out erases this session’s autosave. Before closing the lid, use Save my work and keep the code; Restore my work brings it back on any device.</p><p>Reference: Consumer Financial Protection Bureau, Bank Accounts. The students in the scenarios are made up, but the bank fees come from each bank's published fee guides (checked November 2026). Fees change often, so check a bank's current schedule before you open an account.</p></footer>
+<section id="printView" aria-label="Printable results"><pre id="print-text"></pre><p class="code" id="print-code"></p><p class="small">Attach this PDF to the CW9 assignment in Google Classroom.</p></section>
 <script>
 'use strict';
 const APP='checking-fees', VERSION=2, STORAGE='finlit.checking-fees.v2', LEGACY='finlit.checking-fees.v1';
@@ -660,7 +660,7 @@ $('copy-draft').addEventListener('click',async()=>{
     if(field.value!==code||$('save-panel').hidden)return;
     field.focus();field.select();try{copied=document.execCommand('copy');}catch{}
   }
-  if(field.value===code&&!$('save-panel').hidden)put($('portable-status'),copied?'Draft code copied. Paste it into your Google Doc to keep it.':'Press Ctrl+C to copy the selected draft code.');
+  if(field.value===code&&!$('save-panel').hidden)put($('portable-status'),copied?'Draft code copied. Keep it in your notes or email so you can restore later.':'Press Ctrl+C to copy the selected draft code.');
 });
 function restoreWork(){
   if(worksheet.hidden)return;
@@ -699,7 +699,7 @@ student.addEventListener('submit',e=>{
   const results=refresh();resultTimestamp=Math.floor(Date.now()/1000);
   $('result-code').value=resultCode(nameInput.value.trim(),periodInput.value,results,resultTimestamp);
   $('result-text').value=summary(results);
-  output.hidden=false;put($('results-status'),'Results are ready. Copy them or print a copy for yourself.');$('result-code').focus();
+  output.hidden=false;put($('results-status'),'Results are ready. Press Print / Save as PDF and attach it in Google Classroom.');$('result-code').focus();
 });
 async function copy(codeOnly){
   if(output.hidden)return;
