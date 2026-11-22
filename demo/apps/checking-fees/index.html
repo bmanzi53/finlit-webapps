@@ -70,6 +70,7 @@ html{scroll-padding-top:var(--part-nav-clearance,4rem)}
 <div id="worksheet" hidden>
 <nav class="part-nav" id="part-nav" aria-label="Worksheet parts">
 <div class="part-nav-group" id="part-jumps"></div>
+<div class="part-nav-group" id="portable-nav"><button id="nav-save" type="button" aria-controls="save-panel">Save my work</button><button id="nav-restore" type="button" class="secondary" aria-controls="restore-panel">Restore my work</button></div>
 <div class="part-nav-group">
 <button id="part-back" class="secondary" type="button" aria-label="Back one part">Back</button>
 <button id="part-next" class="secondary" type="button" aria-label="Next part">Next</button>
@@ -643,6 +644,15 @@ $('save-work-results').addEventListener('click',showDraftCode);
 $('restore-work').addEventListener('click',()=>{
   $('draft-code').value='';portablePanel('restore');put($('portable-status'),'');$('restore-input').focus();
 });
+// The nav is the only surface that stays on screen while a student works, so Save/Restore live there too.
+function navPortable(action){
+  const panel=$(action+'-panel'), field=$(action==='save'?'draft-code':'restore-input');
+  if(panel.hidden)$(action+'-work').click();
+  panel.scrollIntoView({block:'center',behavior:'smooth'});
+  field.focus({preventScroll:true});
+}
+$('nav-save').addEventListener('click',()=>navPortable('save'));
+$('nav-restore').addEventListener('click',()=>navPortable('restore'));
 $('copy-draft').addEventListener('click',async()=>{
   const field=$('draft-code'), code=field.value;if(!code||$('save-panel').hidden)return;
   let copied=false;
