@@ -49,6 +49,8 @@ html{scroll-padding-top:var(--part-nav-clearance,4rem)}
 .part-nav button{min-height:36px;padding:.2rem .55rem;font-size:.92rem;white-space:nowrap;font-variant-numeric:tabular-nums}
 .part-nav [aria-current=true]{background:var(--primary-weak);color:var(--navy);border-color:var(--primary);box-shadow:inset 0 -2px var(--primary)}
 #draft-resume{overflow-wrap:anywhere;text-align:left}
+#reference .table-area{overflow:visible}
+@media(max-width:550px){#reference table{min-width:0;table-layout:fixed;overflow-wrap:anywhere}}
 @media(max-width:330px),(max-height:400px){.part-nav{position:static}html{scroll-padding-top:0}}
 </style>
 </head>
@@ -60,8 +62,8 @@ html{scroll-padding-top:var(--part-nav-clearance,4rem)}
 </div></header>
 <main class="wrap">
 <section class="card" id="draft-choice" aria-labelledby="draft-title" hidden>
-<h2 id="draft-title" tabindex="-1">Is this your saved work?</h2>
-<p id="draft-message">Resume only if this is your draft. If you’re a different student, start with a blank worksheet.</p>
+<h2 id="draft-title" tabindex="-1">Is this your work from this Chromebook session?</h2>
+<p id="draft-message">Resume only if this is your work from earlier in this session. Chromebook sign-out clears it. If you’re a different student or have a code from another device, start with a blank worksheet.</p>
 <div class="actions"><button id="draft-resume" type="button"></button><button id="draft-new" type="button" class="secondary">Start a different student</button></div>
 <p id="draft-status" role="status" class="small"></p>
 </section>
@@ -98,7 +100,20 @@ html{scroll-padding-top:var(--part-nav-clearance,4rem)}
 <div><label for="period">Period</label><select id="period" name="period" required><option value="">Choose a period</option><option value="2">Period 2</option><option value="3">Period 3</option><option value="5">Period 5</option><option value="6">Period 6</option><option value="7">Period 7</option><option value="10">Period 10</option></select></div>
 <div><label for="date">Date</label><input id="date" name="date" type="date" required></div>
 </form>
-<p id="storage-status" class="muted small" role="status">Your work saves on this device as you type.</p>
+<p class="small">Work autosaves while this tab is open, but Chromebook sign-out erases it. Before closing the lid, use <strong>Save my work</strong> and keep the code. Use <strong>Restore my work</strong> to bring it back on any device.</p>
+<p id="storage-status" class="muted small" role="status"></p>
+<div class="actions"><button id="save-work" type="button" aria-controls="save-panel" aria-expanded="false">Save my work</button><button id="restore-work" type="button" class="secondary" aria-controls="restore-panel" aria-expanded="false">Restore my work</button></div>
+<div id="save-panel" hidden>
+<label for="draft-code">Draft code (not the results code)</label><textarea id="draft-code" class="code" rows="3" readonly spellcheck="false" aria-describedby="draft-code-help"></textarea>
+<p id="draft-code-help" class="small">Copy and paste this code into your Google Doc or anywhere you can get it back.</p>
+<button id="copy-draft" type="button" class="secondary">Copy draft code</button>
+</div>
+<div id="restore-panel" hidden>
+<label for="restore-input">Paste a draft code or plain-text answers</label><textarea id="restore-input" rows="4" spellcheck="false" autocomplete="off" aria-describedby="restore-help"></textarea>
+<p id="restore-help" class="small">Restoring replaces what is on this worksheet. Anything missing from the paste will be blank.</p>
+<button id="apply-restore" type="button">Restore pasted work</button>
+</div>
+<p id="portable-status" role="status" class="small"></p>
 </section>
 <div class="layout">
 <div>
@@ -115,7 +130,7 @@ html{scroll-padding-top:var(--part-nav-clearance,4rem)}
 <section class="card" aria-labelledby="results-heading">
 <h2 id="results-heading">Results</h2>
 <p>Complete each answer and any “Show your math” box, then create your results. Paste each response into its matching yellow box in the Google Doc. Include the results code if your teacher asks for it.</p>
-<div class="actions"><button id="finish" type="submit" form="student">Create results</button><button id="print" type="button" class="secondary">Print / Save as PDF</button><button id="reset" type="button" class="secondary">Reset</button><button id="clear-device" type="button" class="secondary" aria-describedby="clear-device-help">Clear this device</button></div>
+<div class="actions"><button id="finish" type="submit" form="student">Create results</button><button id="print" type="button" class="secondary">Print / Save as PDF</button><button id="reset" type="button" class="secondary">Reset</button><button id="clear-device" type="button" class="secondary" aria-describedby="clear-device-help">Clear this device</button><button id="save-work-results" type="button" class="secondary" aria-controls="save-panel">Save my work</button></div>
 <p id="clear-device-help" class="small muted">After you turn in your work, use Clear this device to remove your saved name, period, and answers from this browser.</p>
 <p id="results-status" role="status" class="small"></p>
 <div id="result-output" hidden>
@@ -130,11 +145,13 @@ html{scroll-padding-top:var(--part-nav-clearance,4rem)}
 </div>
 <noscript><p class="card">Turn on JavaScript in your browser to use the interactive worksheet.</p></noscript>
 </main>
-<footer class="wrap muted small"><p><strong>Finished? Copy your results and turn them in on Google Classroom.</strong></p><p>You can work offline once this page is open.</p><p>Reference: Consumer Financial Protection Bureau, Bank Accounts. The students in the scenarios are made up, but the bank fees come from each bank's published fee guides (checked November 2026). Fees change often, so check a bank's current schedule before you open an account.</p></footer>
+<footer class="wrap muted small"><p><strong>Finished? Copy your results and turn them in on Google Classroom.</strong></p><p>You can work offline once this page is open.</p><p>Chromebook sign-out erases this session’s autosave. Before closing the lid, use Save my work and keep the code; Restore my work brings it back on any device.</p><p>Reference: Consumer Financial Protection Bureau, Bank Accounts. The students in the scenarios are made up, but the bank fees come from each bank's published fee guides (checked November 2026). Fees change often, so check a bank's current schedule before you open an account.</p></footer>
 <section id="printView" aria-label="Printable results"><pre id="print-text"></pre><p class="code" id="print-code"></p></section>
 <script>
 'use strict';
 const APP='checking-fees', VERSION=2, STORAGE='finlit.checking-fees.v2', LEGACY='finlit.checking-fees.v1';
+const DRAFT_VERSION=1, SESSION_NOTE='Work autosaves in this session, but Chromebook sign-out erases it.',
+  STORAGE_UNAVAILABLE='Autosave is unavailable in this browser. Use Save my work to keep a draft code.';
 // All calculations are integer cents. Bank and row orders match the fee schedule.
 const banks=['Chase','Bank of America','TD Bank'];
 const fees=[{monthly:1500,deposit:50000,balance:150000,atm:300,od:3400,cap:3},{monthly:1200,deposit:25000,balance:150000,atm:250,od:1000,cap:2},{monthly:1500,deposit:Infinity,balance:25000,atm:300,od:3500,cap:3}];
@@ -368,7 +385,7 @@ function showLegacy(){
   for(const [id,c] of controls){const prev=legacy[id];c.prior.hidden=!prev;put(c.priorText,prev?[prev.answer&&'Previous answer: '+prev.answer,prev.work&&'Previous work: '+prev.work].filter(Boolean).join('\n\n'):'');}
 }
 function savedStatus(time){
-  if(Number.isFinite(time))put($('storage-status'),'Saved on this device at '+new Date(time).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'}));
+  if(Number.isFinite(time))put($('storage-status'),'Autosaved for this session at '+new Date(time).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'}));
 }
 function openWorksheet(saved=null,fromLegacy=false){
   renderParts();
@@ -388,7 +405,7 @@ function openWorksheet(saved=null,fromLegacy=false){
 function chooseDraft(){
   let v2,v1;
   try{v2=localStorage.getItem(STORAGE);v1=v2===null?localStorage.getItem(LEGACY):null;}
-  catch{openWorksheet();put($('storage-status'),'Saving is unavailable in this browser. Copy or print your work before you leave.');return;}
+  catch{openWorksheet();put($('storage-status'),STORAGE_UNAVAILABLE);return;}
   if(v2===null&&v1===null){openWorksheet();return;}
   const button=$('draft-resume');
   // Until Resume, saved work stays in memory only. No answer controls or legacy text are mounted.
@@ -421,7 +438,7 @@ $('draft-new').addEventListener('click',()=>{
 function save(){
   try{
     const savedAt=Date.now();localStorage.setItem(STORAGE,JSON.stringify({draft:snapshot(),legacy,savedAt}));savedStatus(savedAt);return true;
-  }catch{put($('storage-status'),'Saving is unavailable in this browser. Copy or print your work before you leave.');return false;}
+  }catch{put($('storage-status'),STORAGE_UNAVAILABLE);return false;}
 }
 function gridNote(values){
   const nums=values.map(parseMoney);
@@ -484,13 +501,182 @@ function summary(results){
   }
   return lines.join('\n');
 }
+// Draft codes carry raw field values, not the graded results payload or its derived values.
+const detailIds=['student-name','period','date'];
+const isRecord=value=>value!==null&&typeof value==='object'&&!Array.isArray(value);
+const answerCount=draft=>Object.entries(draft).filter(([id,value])=>!detailIds.includes(id)&&value.trim()).length;
+const answerLabel=count=>`${count} ${count===1?'answer':'answers'}`;
+const draftStudent=draft=>`${draft['student-name']?.trim()||'unnamed student'}, ${draft.period?'Period '+draft.period:'no period'}`;
+function encodeDraft(draft,savedAt=Date.now()){
+  const data={app:APP,kind:'draft',draftVersion:DRAFT_VERSION,name:draft['student-name'],period:draft.period,date:draft.date,fields:draft,savedAt};
+  const bytes=new TextEncoder().encode(JSON.stringify(data));let binary='';
+  for(let i=0;i<bytes.length;i+=8192)binary+=String.fromCharCode(...bytes.subarray(i,i+8192));
+  return btoa(binary).replaceAll('+','-').replaceAll('/','_').replace(/=+$/,'');
+}
+function acceptsValue(field,value){
+  if(typeof value!=='string')return false;
+  if(field.tagName==='SELECT')return Array.from(field.options).some(option=>option.value===value);
+  const probe=field.cloneNode(false);probe.value=value;
+  return probe.value===value;
+}
+function validateDraft(data,known){
+  if(!isRecord(data)||typeof data.app!=='string')throw new Error('This code is not a worksheet draft.');
+  if(data.app!==APP)throw new Error('This code is for a different worksheet.');
+  if(data.kind!=='draft')throw new Error(data.version===VERSION?'This is a results code. Paste a draft code or the plain-text answers instead.':'This is not a draft code.');
+  if(data.draftVersion!==DRAFT_VERSION)throw new Error('This draft code uses an unsupported version.');
+  if(!isRecord(data.fields))throw new Error('This draft code has a damaged or missing field list.');
+  const entries=Object.entries(data.fields);
+  if(!entries.some(([id])=>known.has(id)))throw new Error('This draft code contains no recognised worksheet fields.');
+  if(entries.some(([id,value])=>!known.has(id)||!acceptsValue(known.get(id),value)))throw new Error('This draft code contains an unknown field or an invalid field value.');
+  const skipped=known.size-entries.length;
+  return {draft:Object.fromEntries(entries),note:skipped?`${skipped} fields were not in the code and were left blank.`:''};
+}
+function parseAnswerText(text,known){
+  // The results Copy button adds a gradebook code after the plain-text summary.
+  const lines=text.replace(/\r\n?/g,'\n').replace(/\n[ \t]*Results code:[ \t]*[A-Za-z0-9+/_=-]+[ \t]*$/,'').split('\n');
+  const titleToId=new Map(questions.map(([id,title])=>[title,id]));
+  const blocks=new Map(), issues=new Map(), draft={};
+  const flag=(title,label)=>{if(!issues.has(title))issues.set(title,new Set());issues.get(title).add(label);};
+  let block=null;
+  for(const raw of lines){
+    const line=raw.trim();
+    const heading=line.match(/^(\d+[a-z])\.\s*\[.*\]$/i);
+    if(heading){
+      const title=heading[1].toLowerCase();block=[];
+      if(blocks.has(title))flag(title,'repeated question');else blocks.set(title,block);
+      if(!titleToId.has(title))flag(title,'unknown question');
+    }else if(groups.some(group=>group.title===line))block=null;
+    else if(block)block.push(raw);
+  }
+  if(![...blocks.keys()].some(title=>titleToId.has(title)))return null;
+  const header=lines.map(line=>line.trim()).find(line=>/^.+\s+\|\s+Period .+\s+\|\s+.+$/.test(line));
+  if(header){
+    const [,name,period,date]=header.match(/^(.+)\s+\|\s+Period (.+)\s+\|\s+(.+)$/);
+    for(const [id,value] of [['student-name',name.trim()==='Name not entered'?'':name.trim()],['period',period==='not entered'?'':period],['date',date==='Date not entered'?'':date]]){
+      if(acceptsValue(known.get(id),value))draft[id]=value;else flag('Student details',id);
+    }
+  }else flag('Student details','not found');
+  let mapped=0;
+  for(const [id,title] of questions){
+    const block=blocks.get(title);
+    if(!block){flag(title,'not found');continue;}
+    if(issues.has(title))continue;
+    const descriptors=id==='M'?labels.map((label,row)=>({label,ids:banks.map((_,col)=>`${id}-${row}-${col}`)})):
+      (objectiveFields[id]||[]).map(field=>({label:field.label,ids:[fieldId(id,field)]}));
+    if(reviewLabels[id])descriptors.push({label:reviewLabels[id],ids:[id+'-written'],multiline:true});
+    if(workQuestions.has(id))descriptors.push({label:'Show your math',ids:[id+'-math'],multiline:true});
+    const markers=[...descriptors,{label:'Previous answer',multiline:true},{label:'Previous work',multiline:true}];
+    const records=new Map(), duplicates=new Set();let current=null;
+    for(const raw of block){
+      const line=raw.trimStart();
+      const marker=markers.find(({label})=>line.startsWith(label+':'));
+      if(marker){
+        if(records.has(marker.label))duplicates.add(marker.label);
+        current=[line.slice(marker.label.length+1).trimStart()];records.set(marker.label,current);
+      }else if(current)current.push(raw);
+    }
+    for(const marker of markers){
+      const {label,ids,multiline}=marker, record=records.get(label);
+      if(!ids){if(record)flag(title,label+' (old format)');continue;}
+      if(!record||duplicates.has(label)){flag(title,label);continue;}
+      // Single-line controls cannot represent extra nonblank lines. Don't silently discard them.
+      if(!multiline&&record.slice(1).some(line=>line.trim())){flag(title,label);continue;}
+      const value=(multiline?record.join('\n'):record[0]).trim();
+      const values=ids.length===1?[value==='[No answer]'||(label==='Show your math'&&value==='[No work entered]')?'':value]:
+        value.split(/\s+\|\s+/).map(cell=>cell==='—'?'':cell);
+      if(values.length!==ids.length||values.some((value,i)=>!acceptsValue(known.get(ids[i]),value))){flag(title,label);continue;}
+      ids.forEach((key,i)=>{draft[key]=values[i];mapped++;});
+    }
+  }
+  if(!mapped)throw new Error('No answer fields could be mapped. Copy the plain-text answers with their question headings.');
+  const note=[...issues].map(([title,labels])=>`${title} (${[...labels].join(', ')})`).join('; ');
+  return {draft,note:note?'Could not restore: '+note+'. These fields were left blank.':''};
+}
+function parsePortable(text,known){
+  text=text.trim();
+  if(!text)throw new Error('Paste a draft code or plain-text answers first.');
+  let valid=null, codeError='';const seen=new Set();
+  for(const [token] of text.matchAll(/[A-Za-z0-9+/_=-]{16,}/g)){
+    const normalized=token.replaceAll('-','+').replaceAll('_','/').replace(/=+$/,'');
+    if(seen.has(normalized))continue;seen.add(normalized);
+    let data;
+    try{
+      const standard=token.replaceAll('-','+').replaceAll('_','/');
+      const bytes=Uint8Array.from(atob(standard),char=>char.charCodeAt(0));
+      data=JSON.parse(new TextDecoder('utf-8',{fatal:true}).decode(bytes));
+    }catch{
+      if(!codeError&&token.startsWith('eyJ'))codeError='This code is damaged or cut off. Copy the entire draft code and try again.';
+      continue;
+    }
+    let candidate;
+    try{candidate=validateDraft(data,known);}catch(error){codeError=error.message;continue;}
+    if(valid)throw new Error('More than one draft code was pasted. Paste only the one you want to restore.');
+    valid=candidate;
+  }
+  if(valid)return valid;
+  const summaryDraft=parseAnswerText(text,known);
+  if(summaryDraft)return summaryDraft;
+  throw new Error(codeError||'No draft code or recognisable worksheet answers were found.');
+}
+function portablePanel(mode){
+  for(const type of ['save','restore']){
+    $(type+'-panel').hidden=mode!==type;
+    $(type+'-work').setAttribute('aria-expanded',String(mode===type));
+  }
+}
+function clearPortable(){
+  portablePanel(null);
+  $('draft-code').value=$('restore-input').value='';
+  put($('portable-status'),'');
+}
+function showDraftCode(){
+  if(worksheet.hidden)return;
+  const draft=snapshot(), savedAt=Date.now(), field=$('draft-code');
+  field.value=encodeDraft(draft,savedAt);
+  portablePanel('save');field.focus();
+  const time=new Date(savedAt).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});
+  put($('portable-status'),`Saved ${answerLabel(answerCount(draft))} for ${draftStudent(draft)} — ${time}.`+
+    (Object.keys(legacy).length?' Previous-version notes are not in the code; copy them separately if you need them.':''));
+}
+$('save-work').addEventListener('click',showDraftCode);
+$('save-work-results').addEventListener('click',showDraftCode);
+$('restore-work').addEventListener('click',()=>{
+  $('draft-code').value='';portablePanel('restore');put($('portable-status'),'');$('restore-input').focus();
+});
+$('copy-draft').addEventListener('click',async()=>{
+  const field=$('draft-code'), code=field.value;if(!code||$('save-panel').hidden)return;
+  let copied=false;
+  try{await navigator.clipboard.writeText(code);copied=true;}catch{
+    if(field.value!==code||$('save-panel').hidden)return;
+    field.focus();field.select();try{copied=document.execCommand('copy');}catch{}
+  }
+  if(field.value===code&&!$('save-panel').hidden)put($('portable-status'),copied?'Draft code copied. Paste it into your Google Doc to keep it.':'Press Ctrl+C to copy the selected draft code.');
+});
+function restoreWork(){
+  if(worksheet.hidden)return;
+  const status=$('portable-status'), input=$('restore-input');
+  const known=new Map(fields().map(field=>[field.id,field]));
+  let restored;
+  try{restored=parsePortable(input.value,known);}
+  catch(error){put(status,error.message+' Your worksheet was not changed.');return;}
+  const {draft,note}=restored, current=snapshot();
+  if((answerCount(current)||current['student-name']||current.period||Object.keys(legacy).length)&&
+    !window.confirm('Replace the work currently on this worksheet? Any fields missing from the paste will be blank.')){
+    put(status,'Restore cancelled. Your worksheet was not changed.');return;
+  }
+  for(const [id,field] of known)field.value=Object.hasOwn(draft,id)?draft[id]:'';
+  nameInput.setCustomValidity('');legacy={};showLegacy();clearPortable();invalidate();save();refresh();
+  $('restore-work').focus();
+  put(status,`Restored ${draftStudent(draft)} — ${answerLabel(answerCount(draft))}.`+(note?' '+note:''));
+}
+$('apply-restore').addEventListener('click',restoreWork);
 function invalidate(){
   resultTimestamp=null;
   if(!output.hidden){output.hidden=true;put($('results-status'),'Work changed. Create results again to update the code.');}
   for(const id of ['result-code','result-text'])$(id).value='';
   for(const id of ['print-text','print-code'])put($(id),'');
 }
-function edit(e){if(worksheet.hidden)return;if(e.target===nameInput)nameInput.setCustomValidity('');save();refresh();invalidate();}
+function edit(e){if(worksheet.hidden)return;if(e.target===nameInput)nameInput.setCustomValidity('');if(!$('save-panel').hidden)clearPortable();save();refresh();invalidate();}
 student.addEventListener('input',edit);partRoot.addEventListener('input',edit);
 student.addEventListener('submit',e=>{
   e.preventDefault();if(worksheet.hidden)return;nameInput.setCustomValidity(nameInput.value.trim()?'':'Enter your name, not just spaces.');
@@ -535,8 +721,8 @@ function clearWorksheet(message){
   partRoot.querySelectorAll('details[open]').forEach(d=>d.open=false);
   legacy={};showLegacy();
   const cleared=deleteDraft();
-  put($('storage-status'),cleared?'Your work saves on this device as you type.':'This browser did not allow the saved draft to be cleared.');
-  invalidate();refresh();markPart(0);
+  put($('storage-status'),cleared?SESSION_NOTE:'This browser did not allow the saved draft to be cleared.');
+  clearPortable();invalidate();refresh();markPart(0);
   put($('results-status'),cleared?'Worksheet cleared.':'Worksheet cleared on screen, but the saved draft could not be removed.');
   nameInput.focus();
 }
